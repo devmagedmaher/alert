@@ -2,16 +2,23 @@ import React from 'react'
 import {
   createBrowserRouter,
   RouterProvider,
-  Route,
 } from "react-router-dom";
-import NotFound from './pages/404'
-import Home from './pages/home'
+import NotFoundPage from './pages/404'
+import HomePage from './pages/home'
+import JoinPage from './pages/join';
 
 const router = createBrowserRouter([
+  /* Join a room Page */
+  {
+    path: '/join',
+    element: <JoinPage />,
+  },
+
+  /* Home Page */
   {
     path: "/",
-    element: <Home />,
-    errorElement: <NotFound />,
+    element: <HomePage />,
+    errorElement: <NotFoundPage />,
   },
 ]);
 

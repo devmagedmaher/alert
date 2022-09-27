@@ -1,6 +1,6 @@
 import logo from '../logo.svg';
 
-const NotFound = () => {
+const NotFoundPage = () => {
   return (
     <div className="App">
       <header className="App-header">
@@ -14,4 +14,4 @@ const NotFound = () => {
   );
 }
 
-export default NotFound;
+export default NotFoundPage;

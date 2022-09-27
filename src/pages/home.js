@@ -1,9 +1,9 @@
+import React from 'react'
 import logo from '../assets/images/logo.png';
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@mantine/core';
-import { useImperativeHandle } from 'react';
 
-const Home = () => {
+const HomePage = () => {
   const navigate = useNavigate()
 
   const goToJoinPage = () => {
@@ -16,10 +16,10 @@ const Home = () => {
         <div className='vertical-animation'>
           <img src={logo} className="App-logo horizontal-animation" alt="logo" />
         </div>
-        <Button mt={50} onClick={goToJoinPage}>Join room</Button>
+        <Button mt={50} onClick={goToJoinPage}>Join a room</Button>
       </header>
     </div>
   );
 }
 
-export default Home;
+export default HomePage;
