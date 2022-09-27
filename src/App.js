@@ -6,7 +6,7 @@ import { MantineProvider } from '@mantine/core';
 function App() {
   return (
     <React.StrictMode>
-      <MantineProvider withGlobalStyles withNormalizeCSS>
+      <MantineProvider theme={{ colorScheme: 'dark' }} withGlobalStyles withNormalizeCSS>
         <Router />
       </MantineProvider>
     </React.StrictMode>

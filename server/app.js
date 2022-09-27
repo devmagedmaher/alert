@@ -36,4 +36,4 @@ const io = require('socket.io')(server, {
   }
 });
 const socketHandler = require('./socket');
-io.on('connection', socketHandler);
+io.on('connection', socketHandler(io));

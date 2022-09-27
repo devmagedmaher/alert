@@ -39,6 +39,7 @@ const JoinPage = () => {
 
       // store name in local storage
       localStorage.setItem('name', values.name)
+      localStorage.setItem('id', `${Math.floor(Math.random() * 1000)}${Date.now()}`)
 
       // go to room page
       navigate(`/r/${values.room}`)

@@ -8,6 +8,7 @@ import Game from '../components/game';
 const RoomPage = () => {
   const { room } = useParams()
   const name = localStorage.getItem('name')
+  const id = localStorage.getItem('id')
 
   if (!name || !room) {
     return <Navigate to="/join" />
@@ -16,10 +17,7 @@ const RoomPage = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <Game
-          room={room}
-          name={name}
-        />
+        <Game room={room} name={name} id={id} />
       </header>
     </div>
   );

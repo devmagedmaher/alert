@@ -8,17 +8,20 @@ import {
   Loader,
   Center,
 } from '@mantine/core'
+import PlayersList from '../components/playersList'
 
 const IntroStage = () => {
   const navigate = useNavigate()
-  const { room, name, status, setStage } = useGame()
+  const { room, name, socket, status, setStage, game } = useGame()
 
   const exitRoom = () => {
-    navigate('/join')
+    // navigate('/join')
+    window.location.href = '/join'
   }
 
-  const joinGame = () => {
+  const enterGame = () => {
     setStage('start')
+    socket.emit('enterGame')
   }
 
   return (
@@ -28,11 +31,14 @@ const IntroStage = () => {
           Hello, <b>{name}</b>. Welcome to <b>{room}</b> room
         </p>
       </Group>
-      <Button onClick={joinGame} color='teal'>
-        Join game
-      </Button>
+
+      <PlayersList players={game.players} />
+
+      {status ? null : <Button onClick={enterGame} color='teal'>
+        Enter Game
+      </Button>}
       <Button onClick={exitRoom} color='red'>
-        Exit room
+        Exit Room
       </Button>
 
       <Center mt={20}>
