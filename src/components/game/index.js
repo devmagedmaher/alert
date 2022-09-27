@@ -1,15 +1,16 @@
-import React, { useState } from 'react'
+import React from 'react'
 import IntroStage from './stages/introStage'
+import StartStage from './stages/startStage';
 
 const GameContext = React.createContext({});
 
 const Game = (props) => {
-  const [stage, setStage] = useState()
+  const [stage, setStage] = React.useState()
 
   const renderStage = () => {
     switch(stage) {
-      case 'view':
-        return 'view game stage'
+      case 'start':
+        return <StartStage />
       
       default:
         return <IntroStage {...props} />

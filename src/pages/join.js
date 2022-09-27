@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Button,
   Input,
+  Stack,
 } from '@mantine/core';
 
 const JoinPage = () => {
@@ -53,41 +54,40 @@ const JoinPage = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <Input.Wrapper
-          error={errors.room}
-          size="lg"
-          mb={10} mt={10}
-          >
-          <Input
-            name="room"
-            placeholder='Room Code'
-            value={values.room}
-            onChange={handleChange}
-            invalid={errors.room}
-            size='lg'
-          />
-        </Input.Wrapper>
+        <Stack>
+          <Input.Wrapper
+            error={errors.room}
+            size="lg"
+            >
+            <Input
+              name="room"
+              placeholder='Room Code'
+              value={values.room}
+              onChange={handleChange}
+              invalid={errors.room}
+              size='lg'
+            />
+          </Input.Wrapper>
 
-        <Input.Wrapper
-          error={errors.name}
-          size="lg"
-          mb={10} mt={10}
-          >
-          <Input
-            name="name"
-            placeholder='Your name'
-            value={values.name}
-            onChange={handleChange}
-            invalid={errors.name}
-            size='lg'
-          />
-        </Input.Wrapper>
+          <Input.Wrapper
+            error={errors.name}
+            size="lg"
+            >
+            <Input
+              name="name"
+              placeholder='Your name'
+              value={values.name}
+              onChange={handleChange}
+              invalid={errors.name}
+              size='lg'
+            />
+          </Input.Wrapper>
 
-        <Button
-          onClick={goToRoom}
-          size='md'
-          mt={40}
-        >Join</Button>
+          <Button
+            onClick={goToRoom}
+            size='md'
+          >Join</Button>
+        </Stack>
       </header>
     </div>
   );
