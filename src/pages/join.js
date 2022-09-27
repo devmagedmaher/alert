@@ -9,7 +9,7 @@ const JoinPage = () => {
   const navigate = useNavigate()
   const [values, setValues] = React.useState({
     room: '',
-    name: '',
+    name: localStorage.getItem('name') || '',
   })
   const [errors, setErrors] = React.useState({})
 
@@ -35,18 +35,17 @@ const JoinPage = () => {
     if (validator()) {
       // clear errors
       setErrors({})
+
+      // store name in local storage
+      localStorage.setItem('name', values.name)
+
       // go to room page
-      navigate(`/r/${values.room}`, {
-        state: {
-          name: values.name,
-        },
-      })
+      navigate(`/r/${values.room}`)
     }
   }
 
   const handleChange = e => {
     const { name, value } = e.target
-    console.log({ name, value })
     setValues(v => ({ ...v, [name]: value }))
     setErrors(e => ({ ...e, [name]: null}))
   }
