@@ -3,7 +3,7 @@ import React from 'react'
 const StartStage = () => {
   return (
     <div>
-      loading..
+      Game inside
     </div>
   )
 }

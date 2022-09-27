@@ -30,6 +30,10 @@ const server = app.listen(PORT, err => {
 });
 
 // socket io
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: '*',
+  }
+});
 const socketHandler = require('./socket');
 io.on('connection', socketHandler);
