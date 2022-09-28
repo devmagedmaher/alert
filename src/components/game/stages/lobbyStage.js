@@ -3,6 +3,7 @@ import { useGame } from '..'
 import PlayersList from '../components/playersList'
 import {
   Container,
+  Stack,
   Button,
 } from '@mantine/core'
 
@@ -15,13 +16,15 @@ const LobbyStage = () => {
 
   return (
     <Container>
-      {isAdmin ? <Button 
-        onClick={handleStartGame}
-        disabled={game.players?.length < 2}
-      >
-        Start Game
-      </Button> : null}
-      <PlayersList players={game.players} />
+      <Stack>
+        <PlayersList />
+        {isAdmin ? <Button 
+          onClick={handleStartGame}
+          disabled={game.players?.length < 3}
+        >
+          New Game
+        </Button> : null}
+      </Stack>
     </Container>
   )
 }

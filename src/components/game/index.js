@@ -12,11 +12,19 @@ const GameContext = React.createContext({
 
 const Game = (props) => {
   const [stage, setStage] = React.useState()
+  const stageRef = React.useRef()
   const [status, setStatus] = React.useState('loading')
   const [game, setGame] = React.useState({})
   const [isAdmin, setIsAdmin] = React.useState(false)
   const [socket, setSocket] = React.useState()
+  const socketRef = React.useRef()
   const connecting = React.useRef(false)
+
+  // update socket ref
+  React.useEffect(() => { socketRef.current = socket }, [socket])
+
+  // update stage ref
+  React.useEffect(() => { stageRef.current = stage }, [stage])
 
   /**
    * initialize connection to socket server
@@ -24,15 +32,13 @@ const Game = (props) => {
   React.useEffect(() => {
     if (connecting.current === false) {
       connecting.current = true
-      setSocket(() => {
-        return io('https://bcab-156-204-69-112.eu.ngrok.io', {
-          query: {
-            room: props.room,
-            name: props.name,
-            id: props.id,
-          }
-        })
-      })
+      setSocket(() => io('https://bcab-156-204-69-112.eu.ngrok.io', {
+        query: {
+          room: props.room,
+          name: props.name,
+          id: props.id,
+        }
+      }))
     }
   }, [])
 
@@ -47,6 +53,7 @@ const Game = (props) => {
       socket.on('disconnect', handleDisconnect)
       socket.on('refresh', handleGameRefresh)
       socket.on('gameStarted', handleGameStarted)
+      socket.on('gamePaused', handleGamePaused)
 
       return () => {
         socket.disconnect()
@@ -54,6 +61,7 @@ const Game = (props) => {
         socket.off('disconnect')
         socket.off('refresh')
         socket.off('gameStarted')
+        socket.off('gamePaused')
       }
     }
   }, [socket])
@@ -91,8 +99,21 @@ const Game = (props) => {
    * 
    */
   const handleGameStarted = () => {
-    console.log('game started')
-    setStage('game')
+    if (stageRef.current === 'lobby') {
+      console.log('game started')
+      setStage('game')
+    }
+  }
+
+  /**
+   * handle game paused
+   * 
+   */
+  const handleGamePaused = () => {
+    if (stageRef.current === 'game') {
+      console.log('game paused')
+      setStage('lobby')
+    }
   }
 
 
@@ -119,9 +140,9 @@ const Game = (props) => {
    */
   return (
     <GameContext.Provider value={{
+      socket: socketRef.current,
       setStage,
       status,
-      socket,
       game,
       isAdmin,
       ...props

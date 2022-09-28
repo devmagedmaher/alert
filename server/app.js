@@ -33,7 +33,8 @@ const server = app.listen(PORT, err => {
 const io = require('socket.io')(server, {
   cors: {
     origin: '*',
-  }
+  },
+  maxHttpBufferSize: 1e6,
 });
 const socketHandler = require('./socket');
 io.on('connection', socketHandler(io));
