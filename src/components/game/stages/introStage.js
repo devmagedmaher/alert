@@ -20,7 +20,12 @@ const IntroStage = () => {
   }
 
   const enterGame = () => {
-    setStage('start')
+    if (game.started) {
+      setStage('game')
+    }
+    else {
+      setStage('lobby')
+    }
     socket.emit('enterGame')
   }
 

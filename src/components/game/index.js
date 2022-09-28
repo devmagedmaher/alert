@@ -1,7 +1,8 @@
 import React from 'react'
 import { io } from 'socket.io-client'
+import GameStage from './stages/gameStage';
 import IntroStage from './stages/introStage'
-import StartStage from './stages/startStage';
+import LobbyStage from './stages/lobbyStage';
 
 const GameContext = React.createContext({
   setStage: () => false,
@@ -13,6 +14,7 @@ const Game = (props) => {
   const [stage, setStage] = React.useState()
   const [status, setStatus] = React.useState('loading')
   const [game, setGame] = React.useState({})
+  const [isAdmin, setIsAdmin] = React.useState(false)
   const [socket, setSocket] = React.useState()
   const connecting = React.useRef(false)
 
@@ -42,12 +44,16 @@ const Game = (props) => {
     if (socket) {
 
       socket.on('connect', handleConnect)
+      socket.on('disconnect', handleDisconnect)
       socket.on('refresh', handleGameRefresh)
+      socket.on('gameStarted', handleGameStarted)
 
       return () => {
         socket.disconnect()
         socket.off('connect')
+        socket.off('disconnect')
         socket.off('refresh')
+        socket.off('gameStarted')
       }
     }
   }, [socket])
@@ -61,10 +67,34 @@ const Game = (props) => {
     setStatus()
   }
 
+  /**
+   * handle socket disconnect
+   * 
+   */
+  const handleDisconnect = () => {
+    console.log('disconnect')
+    setStatus('loading')
+    setStage()
+  }
+
+  /**
+   * handle refresh game data
+   */
   const handleGameRefresh = data => {
     console.log('refreshed data', data)
     setGame(data)
+    setIsAdmin(data.players[0]?.id === props.id)
   }
+
+  /**
+   * handle game started
+   * 
+   */
+  const handleGameStarted = () => {
+    console.log('game started')
+    setStage('game')
+  }
+
 
   /**
    * render game stages
@@ -72,8 +102,11 @@ const Game = (props) => {
    */
   const renderStage = () => {
     switch (stage) {
-      case 'start':
-        return <StartStage />
+      case 'lobby':
+        return <LobbyStage />
+
+      case 'game':
+        return <GameStage />
 
       default:
         return <IntroStage />
@@ -90,6 +123,7 @@ const Game = (props) => {
       status,
       socket,
       game,
+      isAdmin,
       ...props
     }}>
       {renderStage()}

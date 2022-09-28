@@ -50,6 +50,13 @@ module.exports = io => {
         }
         refreshGameData()
       }
+      /**
+       * StartGame: start the game
+       * 
+       */
+      const handleStartGameEvent = () => {
+        startGame(io, socket, { room, name, id })
+      }
 
       /**
        * Disconnect: announce an player disconnection
@@ -69,6 +76,7 @@ module.exports = io => {
        * 
        */
       socket.on('enterGame', handleEnterGameEvent)
+      socket.on('startGame', handleStartGameEvent)
       socket.on('disconnect', handleDisconnectEvent) 
     }
     catch(e) {
@@ -76,5 +84,34 @@ module.exports = io => {
       socket.disconnect();
       socket.leave(r.name)
     }
+  }
+}
+
+function startGame(io, socket, { room, name, id }) {
+  const g = rooms[room]
+  g.started = true
+
+  /**
+   * Update room players with newer game data
+   * 
+   */
+  const refreshGameData = () => {
+    io.to(room).emit('refresh', g)
+    console.log('game', room, 'data', g)
+
+    // pause game if not enough players around
+    if (g.players.length < 2) {
+      pauseGame()
+    }
+  }
+  refreshGameData()
+  io.to(room).emit('gameStarted')
+
+  /**
+   * Close room if there are no players in the room
+   */
+  const pauseGame = () => {
+    console.log('pause room', room)
+    g.started = false
   }
 }
