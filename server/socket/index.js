@@ -1,9 +1,9 @@
 const getRandom = require('./getRandomElements')
 
-const COUNT_DOWN_RECIPE = 5 // in seconds
+const COUNT_DOWN_RECIPE = 15 // in seconds
 const COUNT_DOWN_ANSWER = 15 // in seconds
-const COUNT_DOWN_FOOD = 10 // in seconds
-const MAX_ROUNDS = 2 // in seconds
+const COUNT_DOWN_FOOD = 9 // in seconds
+const MAX_ROUNDS = 4 // in seconds
 let rooms = {}
 
 module.exports = io => {
@@ -136,8 +136,13 @@ module.exports = io => {
             ? r.players.filter(p => p.id !== r.chef.id)
             : r.players
 
+          const nonFoodPlayers = r.food
+            ? r.players.filter(p => p.id !== r.food.id)
+            : r.players
+
           // get 2 random candidates chef & food
-          const [chef, food] = getRandom(nonChefPlayers, 2)
+          const [chef] = getRandom(nonChefPlayers, 1)
+          const [food] = getRandom(nonFoodPlayers, 1)
           r.chef = chef
           r.food = food
 
