@@ -1,6 +1,5 @@
 import React from 'react'
 import { useGame } from '..'
-import { useNavigate } from 'react-router-dom'
 import {
   Button,
   Group,
@@ -11,7 +10,6 @@ import {
 import PlayersList from '../components/playersList'
 
 const IntroStage = () => {
-  const navigate = useNavigate()
   const { room, name, socket, status, setStage, game } = useGame()
 
   const exitRoom = () => {
@@ -37,7 +35,14 @@ const IntroStage = () => {
         </p>
       </Group>
 
-      <PlayersList players={game.players} />
+      {status === undefined
+        ? <PlayersList players={game.players} />
+        : <Stack>
+            <Center mt={20}>
+              {status === 'loading' ? <Loader /> : null}
+            </Center>
+          </Stack>
+      }
 
       {status ? null : <Button onClick={enterGame} color='teal'>
         Enter Game
@@ -45,13 +50,6 @@ const IntroStage = () => {
       <Button onClick={exitRoom} color='red'>
         Exit Room
       </Button>
-
-      <Center mt={20}>
-        {status === 'loading' ? <Loader /> : null}
-      </Center>
-      <Center>
-        {status}
-      </Center>
     </Stack>
   )
 }

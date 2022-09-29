@@ -9,7 +9,7 @@ import {
 const JoinPage = () => {
   const navigate = useNavigate()
   const [values, setValues] = React.useState({
-    room: '',
+    room: localStorage.getItem('room') || '',
     name: localStorage.getItem('name') || '',
   })
   const [errors, setErrors] = React.useState({})

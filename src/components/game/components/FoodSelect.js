@@ -4,7 +4,6 @@ import {
   Stack,
   Button,
   Radio,
-  Select,
 } from '@mantine/core'
 import { useGame } from '..'
 import PlayersList from './playersList'

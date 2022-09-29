@@ -10,6 +10,11 @@ const RoomPage = () => {
   const name = localStorage.getItem('name')
   const id = localStorage.getItem('id')
 
+  React.useEffect(() => {
+    console.log('set room name')
+    localStorage.setItem('room', room)
+  }, [])
+
   if (!name || !room) {
     return <Navigate to="/join" />
   }

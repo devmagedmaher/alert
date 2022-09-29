@@ -264,6 +264,11 @@ module.exports = io => {
         r.players = r.players.filter(p => p.id !== id)
         refreshGameData()
 
+        console.log(r.chef.id, r.food.id, id, r.chef.id === id, r.food.id === id)
+        if (r.chef.id === id || r.food.id === id) {
+          nextRound(false)
+        }
+
         // pause game if not enough players around
         if (!r.paused && r.players.length < 3) {
           pauseGame()
