@@ -1,5 +1,6 @@
 {
-  "name": "youre",
+  "name": "chef-recipe",
+  "homepage": "https://devmagedmaher.github.io/chef-recipe/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -21,12 +22,11 @@
     "socket.io-client": "^4.5.2",
     "web-vitals": "^2.1.4"
   },
-  "homepage": "https://devmagedmaher.github.io/chef-recipe/",
   "scripts": {
     "start": "react-scripts start",
     "server": "nodemon ./server/app.js",
     "build": "react-scripts build",
-    "deploy" : "gh-pages -d build",
+    "deploy" : "gh-pages -d build -b master --remote gh-pages",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
