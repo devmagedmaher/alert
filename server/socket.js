@@ -137,7 +137,7 @@ module.exports = io => {
             : r.players
 
           const nonFoodPlayers = r.food
-            ? r.players.filter(p => p.id !== r.food.id)
+            ? r.players.filter(p => p.id !== r.food?.id)
             : r.players
 
           // get 2 random candidates chef & food
@@ -191,7 +191,7 @@ module.exports = io => {
         player.answered = true
 
         if (id !== r.chef?.id) {
-          if (r.food.id === foodId) {
+          if (r.food?.id === foodId) {
             const points = r.players.filter(p => !p.answered && p.id !== r.chef?.id).length
             player.score += points + 1
             player.roundScore += points + 1
@@ -261,7 +261,7 @@ module.exports = io => {
         r.players = r.players.filter(p => p.id !== id)
         refreshGameData()
 
-        if (r.chef?.id === id || r.food.id === id) {
+        if (r.chef?.id === id || r.food?.id === id) {
           nextRound(false)
         }
 
