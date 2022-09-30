@@ -1,8 +1,10 @@
 import React from 'react'
 import { io } from 'socket.io-client'
-import GameStage from './stages/gameStage';
+import GameStage from './stages/gameStage'
 import IntroStage from './stages/introStage'
-import LobbyStage from './stages/lobbyStage';
+import LobbyStage from './stages/lobbyStage'
+import Layout from '../Layout'
+import Sidebar from './components/sidebar'
 
 const GameContext = React.createContext({
   setStage: () => false,
@@ -29,9 +31,10 @@ const Game = (props) => {
   /**
    * initialize connection to socket server
    */
-  React.useEffect(() => {
+  const initializeConnection = () => {
     if (connecting.current === false) {
       connecting.current = true
+      setStatus('loading')
       setSocket(() => io('https://bcab-156-204-69-112.eu.ngrok.io', {
         query: {
           room: props.room,
@@ -40,7 +43,8 @@ const Game = (props) => {
         }
       }))
     }
-  }, [])
+  }
+  React.useEffect(() => { initializeConnection() }, [])
 
   /**
    * listen to socket events
@@ -81,8 +85,12 @@ const Game = (props) => {
    */
   const handleDisconnect = () => {
     console.log('disconnect')
-    setStatus('loading')
+    setStatus('disconnected')
     setStage()
+
+    // reconnect
+    connecting.current = false
+    initializeConnection()
   }
 
   /**
@@ -147,7 +155,9 @@ const Game = (props) => {
       isAdmin,
       ...props
     }}>
-      {renderStage()}
+      <Layout navbar={<Sidebar />}>
+        {renderStage()}
+      </Layout>
     </GameContext.Provider>
   )
 }

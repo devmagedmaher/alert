@@ -6,6 +6,7 @@ import {
   Stack,
   Loader,
   Center,
+  Title,
 } from '@mantine/core'
 import PlayersList from '../components/playersList'
 
@@ -29,26 +30,16 @@ const IntroStage = () => {
 
   return (
     <Stack>
-      <Group>
-        <p>
-          Hello, <b>{name}</b>. Welcome to <b>{room}</b> room
-        </p>
-      </Group>
-
-      {status === undefined
-        ? <PlayersList players={game.players} />
-        : <Stack>
-            <Center mt={20}>
-              {status === 'loading' ? <Loader /> : null}
-            </Center>
-          </Stack>
-      }
-
-      {status ? null : <Button onClick={enterGame} color='teal'>
-        Enter Game
-      </Button>}
-      <Button onClick={exitRoom} color='red'>
-        Exit Room
+      <Center>
+        {status ? status : null}
+      </Center>
+      <Button
+        onClick={enterGame}
+        color='teal'
+        disabled={status}
+        loading={status === 'loading'}
+      >
+        Enter the Game
       </Button>
     </Stack>
   )

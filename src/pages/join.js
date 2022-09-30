@@ -12,8 +12,8 @@ const JoinPage = () => {
   const navigate = useNavigate()
   const form = useForm({
     initialValues: {
-      kitchen: '',
-      name: '',
+      kitchen: localStorage.getItem('room') || '',
+      name: localStorage.getItem('name') || '',
     },
     validate: {
       kitchen: val => val === '' ? 'Please enter the kitchen code' : null, 

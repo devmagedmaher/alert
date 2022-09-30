@@ -1,6 +1,6 @@
 import React from 'react'
 import { AppShell, Center, Container } from '@mantine/core'
-import Header, { height } from './header'
+import Header, { HEADER_HEIGHT } from './header'
 
 const Layout = ({
   header = true,
@@ -14,7 +14,7 @@ const Layout = ({
       navbar={navbar}
     >
       <Container>
-        <Center style={{ height: `calc(100vh - ${height + 32}px)` }}>
+        <Center style={{ height: `calc(100vh - ${HEADER_HEIGHT + 32}px)` }}>
           {children}
         </Center>
       </Container>

@@ -21,9 +21,7 @@ const RoomPage = () => {
   }
 
   return (
-    <Layout>
-      <Game room={room} name={name} id={id} />
-    </Layout>
+    <Game room={room} name={name} id={id} />
   )
 }
 

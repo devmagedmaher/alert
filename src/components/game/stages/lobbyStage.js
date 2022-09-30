@@ -5,6 +5,8 @@ import {
   Container,
   Stack,
   Button,
+  Title,
+  Text,
 } from '@mantine/core'
 
 const LobbyStage = () => {
@@ -17,13 +19,24 @@ const LobbyStage = () => {
   return (
     <Container>
       <Stack>
-        <PlayersList />
-        {isAdmin ? <Button 
-          onClick={handleStartGame}
-          disabled={game.players?.length < 3}
-        >
-          New Game
-        </Button> : null}
+        <Text>
+          {game.players?.length < 3
+            ? "at least 3 players are required for game to start"
+            : isAdmin
+              ? "You are good to go!"
+              : "Wait for admin to start the game."
+          }
+        </Text>
+        {isAdmin 
+          ? <Button 
+              onClick={handleStartGame}
+              disabled={game.players?.length < 3}
+            >
+              Start Game
+            </Button> 
+            
+          : null
+        }
       </Stack>
     </Container>
   )

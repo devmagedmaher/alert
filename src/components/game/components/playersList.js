@@ -6,7 +6,7 @@ import {
 } from '@mantine/core'
 import { useGame } from '..'
 
-const PlayersList = ({ roundScore = false }) => {
+const PlayersList = ({ roundScore = true }) => {
   const { game, id } = useGame()
 
   return (
@@ -15,8 +15,8 @@ const PlayersList = ({ roundScore = false }) => {
         <tr>
           <th>#</th>
           <th>Name</th>
-          {roundScore ? <th>Round Score</th> : null}
-          <th>Game Score</th>
+          {roundScore ? <th style={{ textAlign: 'center' }}>Round</th> : null}
+          <th style={{ textAlign: 'center' }}>Total</th>
         </tr>
       </thead>
       <tbody>
@@ -25,9 +25,8 @@ const PlayersList = ({ roundScore = false }) => {
             .sort((a, b) => b.score - a.score)
             .map((player, index) => (
               <tr key={player.id} style={player.id === id ? { backgroundColor: 'rgba(255, 255, 0, 0.1)'} : {}}>
-                <td>{index + 1}</td>
                 <td>
-                  <Indicator position="middle-end" size={20} offset={-20} disabled={index > 2} withBorder color={index === 0
+                <Indicator position="middle-start" size={10} offset={25} disabled={index > 2} color={index === 0
                     ? 'yellow'
                     : index === 1
                       ? 'white'
@@ -35,26 +34,29 @@ const PlayersList = ({ roundScore = false }) => {
                         ? 'orange'
                         : 'dark'
                   }>
-                    <Text color={player.isRight === true 
-                      ? 'green'
-                      : player.isRight === false
-                        ? 'red'
-                        : ''
-                    }>
-                      {player.name}{index === 0 ? ` (admin)` : null}
-                    </Text>
+                    <Text>{index + 1}#</Text>
                   </Indicator>
                 </td>
-                {roundScore ? <td>{player.roundScore > 0
+                <td>
+                  <Text color={player.isRight === true 
+                    ? 'green'
+                    : player.isRight === false
+                      ? 'red'
+                      : ''
+                  }>
+                    {player.name}{index === 0 ? ` (admin)` : null}
+                  </Text>
+                </td>
+                {roundScore ? <td align='center'>{player.roundScore > 0
                   ? <Text color="green">+{player.roundScore}</Text>
                   : <Text>{player.roundScore}</Text>
                 }</td> : null}
-                <td>{player.score}</td>
+                <td align='center'>{player.score}</td>
               </tr>
             ))
           
           : <tr>
-            <td colSpan={3}>No one in the game yet</td>
+            <td colSpan={roundScore ? 4 : 3} align="center">No one in the game yet</td>
           </tr>
         }
       </tbody>

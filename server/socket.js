@@ -21,6 +21,8 @@ module.exports = io => {
         rooms[room] = {
           name: room,
           players: [],
+          round: 0,
+          lastRound: MAX_ROUNDS,
         }
       }
       const r = rooms[room]

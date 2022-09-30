@@ -9,11 +9,11 @@ import {
 } from '@mantine/core'
 import { Link } from 'react-router-dom'
 
-const height = 70
+const HEADER_HEIGHT = 70
 
 const Header = ({ name }) => {
   return (
-    <MantineHeader height={height} p="lg" style={{ display: 'flex', alignItems: 'center' }}>
+    <MantineHeader height={HEADER_HEIGHT} p="lg" style={{ display: 'flex', alignItems: 'center' }}>
       <Paper>
         <Group position='apart'>
           <Group spacing="xs">
@@ -33,4 +33,4 @@ const Header = ({ name }) => {
 
 export default Header
 
-export { height }
+export { HEADER_HEIGHT }
