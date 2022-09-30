@@ -45,7 +45,7 @@ const Sidebar = () => {
       <ScrollArea className={classes.scrollArea} type="always">
         <Navbar.Section p='lg'>
           <Group position='apart'>
-            <Title order={4} mb="sm">Game "{room}" {game.started ? '(Started)' : null}</Title>
+            <Title order={4} mb="sm">Kitchen "{room}" {game.started ? '(Started)' : null}</Title>
             <ActionIcon
               onClick={exitKitchen}
               variant="outlined"
