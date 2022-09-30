@@ -11,7 +11,11 @@ const Input = ({
   onEnter,
   inputProps,
   wrapperProps,
+
+  showLabel = false,
+  autoFocus = false,
 }) => {
+  const inputRef = React.useRef()
 
   const handleOnKeyDown = e => {
     if (e.keyCode === 13) {
@@ -19,14 +23,23 @@ const Input = ({
     }
   }
 
+  React.useEffect(() => {
+    if (autoFocus) {
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+    }
+  }, [])
+
   return (
     <MantineInput.Wrapper
       error={error}
-      label={label}
+      label={showLabel ? label : false}
       size={size}
       {...wrapperProps}
     >
       <MantineInput
+        ref={inputRef}
         name={name}
         placeholder={label}
         value={value}

@@ -1,6 +1,7 @@
 import React from 'react'
 import Logo from './logo'
 import {
+  createStyles,
   Group,
   Header as MantineHeader,
   Paper,
@@ -11,10 +12,19 @@ import { Link } from 'react-router-dom'
 
 const HEADER_HEIGHT = 70
 
-const Header = ({ name }) => {
+const useStyles = createStyles((theme) => ({
+  paper: {
+    width: '100%',
+  },
+}))
+
+const Header = () => {
+  const { classes } = useStyles()
+  const name = localStorage.getItem('name')
+
   return (
     <MantineHeader height={HEADER_HEIGHT} p="lg" style={{ display: 'flex', alignItems: 'center' }}>
-      <Paper>
+      <Paper className={classes.paper}>
         <Group position='apart'>
           <Group spacing="xs">
             <Link to='/'>
@@ -24,7 +34,7 @@ const Header = ({ name }) => {
               <Text variant="text" color={'cyan'}>Chef Recipe</Text>
             </Title>
           </Group>
-          {name ? <Text>{name}</Text> : null}
+          {name ? <Text>Hello, {name}</Text> : null}
         </Group>
       </Paper>
     </MantineHeader>

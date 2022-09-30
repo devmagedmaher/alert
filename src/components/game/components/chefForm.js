@@ -1,75 +1,55 @@
 import React from 'react'
+import { useForm } from '@mantine/form'
 import {
   Container,
   Stack,
-  Group,
-  Input,
   Button,
-  Text,
+  Title,
 } from '@mantine/core'
 import { useGame } from '..'
+import Input from '../../input'
 
 const ChefForm = () => {
   const { game, socket } = useGame()
-  const [values, setValues] = React.useState({
-    recipe: '',
-  })
-  const [errors, setErrors] = React.useState({})
-
-  const validator = () => {
-    const e = {}
-
-    if (values.recipe?.trim() === '') {
-      e.recipe = 'Please enter a recipe!'
+  const form = useForm({
+    initialValues: {
+      recipe: '',
+    },
+    validate: {
+      recipe: val => val === '' ? 'Please enter your recipe' : null, 
     }
-
-    setErrors(e)
-
-    return Object.keys(e).length > 0
-      ? false
-      : true
-  }
+  })
 
   const submitRecipe = () => {
-    if (validator()) {
-      // clear errors
-      setErrors({})
+    form.validate()
+    if (form.isValid()) {
+      const { recipe } = form.values
 
-      // emit recipe
-      socket.emit('submitRecipe', values.recipe)
+      // send recipe
+      socket.emit('submitRecipe', recipe)
     }
-  }
-
-  const handleChange = e => {
-    const { name, value } = e.target
-    setValues(v => ({ ...v, [name]: value }))
-    setErrors(e => ({ ...e, [name]: null}))
   }
 
   return (
     <Container>
       <Stack>
-        <h1>{game.countDown}</h1>
+        <Title order={1} align="center">{game.countDown}</Title>
 
-        <Group>
-          <Text>{game.food.name} is: </Text>
-          <Input.Wrapper
-            error={errors.recipe}
-            size="lg"
-          >
-            <Input
-              name="recipe"
-              placeholder='Your recipe'
-              value={values.recipe}
-              onChange={handleChange}
-              invalid={errors.recipe}
-              size='lg'
-            />
-          </Input.Wrapper>
-        </Group>
-
+        <Input
+          name="recipe"
+          label={`${game.food.name} is:`}
+          showLabel={true}
+          value={form.values.recipe}
+          error={form.errors.recipe}
+          onChange={text => form.setFieldValue('recipe', text)}
+          onEnter={submitRecipe}
+          size="lg"
+          autoFocus={true}
+        />
+        
         <Button
           onClick={submitRecipe}
+          variant="light"
           size='md'
         >Submit</Button>
       </Stack>

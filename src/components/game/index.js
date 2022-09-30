@@ -87,10 +87,6 @@ const Game = (props) => {
     console.log('disconnect')
     setStatus('disconnected')
     setStage()
-
-    // reconnect
-    connecting.current = false
-    initializeConnection()
   }
 
   /**

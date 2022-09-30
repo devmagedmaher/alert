@@ -42,38 +42,33 @@ const Sidebar = () => {
 
   return (
     <Navbar width={{ base: SIDEBAR_WIDTH }} height={`calc(100vh - ${HEADER_HEIGHT}px)`}>
-      <Paper className={classes.paper}>
-        <ScrollArea className={classes.scrollArea} type="always">
-          <Box height="100%">
-            <Box p="lg">
-              <Group position='apart'>
-                <Title order={4} mb="sm">Game "{room}" {game.started ? '(Started)' : null}</Title>
-                <ActionIcon
-                  onClick={exitKitchen}
-                  variant="outlined"
-                  color='red'
-                  size='md'
-                >
-                  {/* {'<<'}
-                  <Text ml="sm">Exit</Text> */}
-                  <IconDoorExit size={16} style={{ transform: 'scaleX(-1)' }} />
-                </ActionIcon>
-              </Group>
-              <Text>Round: {game.round}/{game.lastRound}</Text>
-              {game.started ? <Text>Stage: {renderGameStage()}</Text> : null}
-            </Box>
+      <ScrollArea className={classes.scrollArea} type="always">
+        <Navbar.Section p='lg'>
+          <Group position='apart'>
+            <Title order={4} mb="sm">Game "{room}" {game.started ? '(Started)' : null}</Title>
+            <ActionIcon
+              onClick={exitKitchen}
+              variant="outlined"
+              color='red'
+              size='md'
+            >
+              <IconDoorExit size={16} style={{ transform: 'scaleX(-1)' }} />
+            </ActionIcon>
+          </Group>
+          <Text>Round: {game.round}/{game.rounds}</Text>
+          {game.started ? <Text>Stage: {renderGameStage()}</Text> : null}
+        </Navbar.Section>
 
-            <Divider />
+        <Divider />
 
-            <Title order={4} p="lg">Players</Title>
+        <Navbar.Section grow>
             <PlayersList />
-          </Box>
+        </Navbar.Section>
 
-          <Box py="lg">
-            {/* Footer here */}
-          </Box>
-        </ScrollArea>
-      </Paper>
+        <Navbar.Section>
+          {/* FOOTER */}
+        </Navbar.Section>
+      </ScrollArea>
     </Navbar>
   )
 }

@@ -27,7 +27,6 @@ const JoinPage = () => {
       const { name, kitchen  } = form.values
       // store name in local storage
       localStorage.setItem('name', name)
-      localStorage.setItem('id', `${Math.floor(Math.random() * 1000)}${Date.now()}`)
 
       // go to kitchen page
       navigate(`/r/${kitchen}`)

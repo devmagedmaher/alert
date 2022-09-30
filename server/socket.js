@@ -1,9 +1,10 @@
+const { IconBrandGoogle } = require('@tabler/icons')
 const Utils = require('./utils')
 
-const COUNT_DOWN_RECIPE = 15 // in seconds
-const COUNT_DOWN_ANSWER = 15 // in seconds
-const COUNT_DOWN_FOOD = 9 // in seconds
-const MAX_ROUNDS = 4 // in seconds
+const COUNT_DOWN_RECIPE = 20 // in seconds
+const COUNT_DOWN_ANSWER = 20 // in seconds
+const COUNT_DOWN_FOOD = 15 // in seconds
+const MAX_ROUNDS = 5
 let rooms = {}
 
 module.exports = io => {
@@ -21,8 +22,9 @@ module.exports = io => {
         rooms[room] = {
           name: room,
           players: [],
+          offlinePlayers: [],
           round: 0,
-          lastRound: MAX_ROUNDS,
+          rounds: MAX_ROUNDS,
         }
       }
       const r = rooms[room]
@@ -38,6 +40,7 @@ module.exports = io => {
         io.to(room).emit('refresh', data)
         // console.log('game', room, 'data', r)
       }
+      // initial refresh
       refreshGameData()
 
 
@@ -60,6 +63,7 @@ module.exports = io => {
         r.started = true
         r.paused = false
         r.round = 0
+        r.lastRound = false
         r.players = r.players.map(p => ({ ...p, score: 0 }))
         refreshGameData()
 
@@ -80,7 +84,7 @@ module.exports = io => {
           if (r.countDown <= 0) {
             if (r.recipe) {
               if (r.showFood) {
-                if (r.round > MAX_ROUNDS) {
+                if (r.round >= MAX_ROUNDS) {
                   pauseGame()
                   return
                 }
@@ -123,6 +127,9 @@ module.exports = io => {
         process.nextTick(() => {
           if (goNextRound) {
             r.round += 1
+            if (r.round >= r.rounds) {
+              r.lastRound = true
+            }
           }
           // reset round
           r.recipe = null
@@ -187,7 +194,7 @@ module.exports = io => {
        * 
        */
       const handleSubmitFoodEvent = foodId => {
-        // store recipe
+        // check answer
         const player = r.players.find(p => p.id === id)
         const chef = r.players.find(p => p.id === r.chef?.id)
         player.answered = true
@@ -204,6 +211,9 @@ module.exports = io => {
             player.isRight = true
           }
           else {
+            player.score -= 1
+            player.roundScore -= 1
+
             player.isRight = false
           }
         }
@@ -225,15 +235,14 @@ module.exports = io => {
       const handleEnterGameEvent = () => {
         console.log(`player: ${name} entered game ${room} with id: ${id}`)
 
-        if (r.players.every(player => player.id !== id)) {
-          const player = {
-            id,
-            name,
-            score: 0,
-            roundScore: 0,
-          }
-          r.players = [ ...r.players, player ]
+        let player = { id, name, score: 0, roundScore: 0 }
+        const wasOffline = r.offlinePlayers.find(p => p.id === id)
+        if (wasOffline) {
+          player = { ...wasOffline, name }
         }
+
+        r.players = [ ...r.players, player ]
+
         refreshGameData()
       }
 
@@ -250,7 +259,30 @@ module.exports = io => {
        * 
        */
       const handleNextRoundEvent = () => {
+        if (r.round >= MAX_ROUNDS) {
+          pauseGame()
+          return
+        }
         nextRound()
+      }
+
+      /**
+       * SkipAnswer: skip answering for this round
+       * 
+       */
+      const handleSkipAnswerEvent = () => {
+        const player = r.players.find(p => p.id === id)
+        player.answered = true
+
+
+        if (r.players.every(p => p.answered)) {
+          r.showFood = true
+          
+          // restart counter
+          resetCounter(COUNT_DOWN_FOOD)
+        }
+        
+        refreshGameData()
       }
 
       /**
@@ -260,17 +292,28 @@ module.exports = io => {
       const handleDisconnectEvent = () => {
         console.log(`player: ${name} disconnected from room: ${room}`)
 
-        r.players = r.players.filter(p => p.id !== id)
-        refreshGameData()
+        // find player on online list
+        const player = r.players.find(p => p.id === id)
 
-        if (r.chef?.id === id || r.food?.id === id) {
-          nextRound(false)
+        // add player to offline list if he w
+        if (player) {
+          r.offlinePlayers = [ ...r.offlinePlayers, player ]
+
+          // remove from online list
+          r.players = r.players.filter(p => p.id !== id)
+
+          // skip round if disconnected user was a chef or a food
+          if (r.chef?.id === id || r.food?.id === id) {
+            nextRound(false)
+          }
+
+          // pause game if not enough players around
+          if (!r.paused && r.players.length < 3) {
+            pauseGame()
+          }        
         }
 
-        // pause game if not enough players around
-        if (!r.paused && r.players.length < 3) {
-          pauseGame()
-        }        
+        refreshGameData()
       }
 
 
@@ -281,6 +324,7 @@ module.exports = io => {
       socket.on('enterGame', handleEnterGameEvent)
       socket.on('startGame', handleStartGameEvent)
       socket.on('nextRound', handleNextRoundEvent)
+      socket.on('skipAnswer', handleSkipAnswerEvent)
       
       socket.on('submitRecipe', handleSubmitRecipeEvent)
       socket.on('submitFood', handleSubmitFoodEvent)
