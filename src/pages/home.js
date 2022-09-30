@@ -19,7 +19,7 @@ const HomePage = () => {
           variant="subtle"
           size="lg"
           mt={40}
-        >Join a room {" ->"}</Button>
+        >Join a kitchen room {" ->"}</Button>
       </Stack>
     </Layout>
   );

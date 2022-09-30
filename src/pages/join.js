@@ -17,7 +17,11 @@ const JoinPage = () => {
     },
     validate: {
       kitchen: val => val === '' ? 'Please enter the kitchen code' : null, 
-      name: val => val === '' ? 'Please enter your name' : null, 
+      name: val => val === '' 
+        ? 'Please enter your name'
+        : val?.length > 15
+          ? 'You name is too long!'
+          : null,
     }
   })
 

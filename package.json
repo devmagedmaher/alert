@@ -1,6 +1,5 @@
 {
   "name": "chef-recipe",
-  "homepage": "https://devmagedmaher.github.io/chef-recipe/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { useForm } from '@mantine/form'
+import { useGame } from '..'
+import { useMediaQuery } from '@mantine/hooks'
 import {
   Container,
   Stack,
@@ -8,10 +10,13 @@ import {
   Title,
   Text,
   Group,
+  useMantineTheme,
 } from '@mantine/core'
-import { useGame } from '..'
+import PlayersList from './playersList'
 
 const FoodSelect = () => {
+  const theme = useMantineTheme()
+  const sm = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`)
   const { game, socket, isAdmin } = useGame()
   // make a copy of current game players array
   const [options] = useState(() => Array.from(game.players.sort((a, b) => a.name.localeCompare(b.name))))
@@ -53,14 +58,34 @@ const FoodSelect = () => {
       <Container>
         <Stack>
             <Title order={2}>{game.recipe} is {game.food.name}</Title>
-            <Text align='center'>{game.lastRound ? 'Game ends' : 'Next round'} in {game.countDown} seconds</Text>
+            <Text align='center' mb="md">
+              {game.lastRound ? 'Game ends' : 'Next round'} in {game.countDown} seconds
+            </Text>
             {isAdmin ? <Button
               onClick={goNextRound}
               variant="light"
               size='md'
+              mb="md"
             >{game.lastRound ? 'End Game' : 'Next Round'}</Button> : null}
+
+            {sm ? <PlayersList /> : null}
           </Stack>
       </Container>
+    )
+  }
+
+  if (answer) {
+    return (
+      <Container>
+        <Stack>
+          <Title order={3}>Recipe: {game.recipe}</Title>
+          <Text mb="md">
+            Your answer is: {answer}. wait for other players {game.countDown}
+          </Text>
+
+          {sm ? <PlayersList /> : null}
+        </Stack>
+      </Container>    
     )
   }
 
@@ -69,23 +94,20 @@ const FoodSelect = () => {
       <Stack>
         <Title order={3}>Recipe: {game.recipe}</Title>
 
-        {answer
-          ? <Text>Your answer is: {answer}. wait for other players {game.countDown}</Text>
-          : <Radio.Group
-              name="food"
-              value={form.values.food}
-              onChange={value => form.setFieldValue('food', value)}
-              error={form.errors.food}
-              orientation="vertical"
-              label={`Guess the food from recipe before timeout: ${game.countDown}`}
-            >
-              {options.map(player => (
-                <Radio value={player.id} label={player.name} />
-              ))}
-            </Radio.Group>
-        }
-
-        {answer ? null : <Group>
+        <Radio.Group
+          name="food"
+          value={form.values.food}
+          onChange={value => form.setFieldValue('food', value)}
+          error={form.errors.food}
+          orientation="vertical"
+          label={`Guess the food from recipe before timeout: ${game.countDown}`}
+        >
+          {options.map(player => (
+            <Radio value={player.id} label={player.name} />
+          ))}
+        </Radio.Group>
+ 
+        <Group>
           <Button
             onClick={skipAnswer}
             variant="subtle"
@@ -99,7 +121,7 @@ const FoodSelect = () => {
             variant="light"
             size='md'
           >Submit Answer</Button>
-        </Group>}
+        </Group>
       </Stack>
     </Container>
   )
