@@ -4,8 +4,8 @@ import {
   Container,
   Stack,
 } from '@mantine/core'
-import ChefForm from '../components/ChefForm'
-import FoodSelect from '../components/FoodSelect'
+import ChefForm from '../components/chefForm'
+import FoodSelect from '../components/foodSelect'
 
 const GameStage = () => {
   const { game, id } = useGame()
