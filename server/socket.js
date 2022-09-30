@@ -1,4 +1,4 @@
-const getRandom = require('./getRandomElements')
+const Utils = require('./utils')
 
 const COUNT_DOWN_RECIPE = 15 // in seconds
 const COUNT_DOWN_ANSWER = 15 // in seconds
@@ -133,7 +133,7 @@ module.exports = io => {
           }))
 
           const nonChefPlayers = r.chef
-            ? r.players.filter(p => p.id !== r.chef.id)
+            ? r.players.filter(p => p.id !== r.chef?.id)
             : r.players
 
           const nonFoodPlayers = r.food
@@ -141,8 +141,8 @@ module.exports = io => {
             : r.players
 
           // get 2 random candidates chef & food
-          const [chef] = getRandom(nonChefPlayers, 1)
-          const [food] = getRandom(nonFoodPlayers, 1)
+          const [chef] = Utils.getRandomElements(nonChefPlayers, 1)
+          const [food] = Utils.getRandomElements(nonFoodPlayers, 1)
           r.chef = chef
           r.food = food
 
@@ -159,7 +159,6 @@ module.exports = io => {
        * 
        */
       const pauseGame = () => {
-        console.log('pause room', room)
         r.paused = true
         r.started = false
         r.players = r.players.map(p => ({ ...p, isRight: null }))
@@ -173,7 +172,6 @@ module.exports = io => {
        * 
        */
       const handleSubmitRecipeEvent = recipe => {
-        console.log('recipe submitted')
         // store recipe
         r.recipe = recipe
         refreshGameData()
@@ -187,15 +185,14 @@ module.exports = io => {
        * 
        */
       const handleSubmitFoodEvent = foodId => {
-        console.log('answer submitted')
         // store recipe
         const player = r.players.find(p => p.id === id)
-        const chef = r.players.find(p => p.id === r.chef.id)
+        const chef = r.players.find(p => p.id === r.chef?.id)
         player.answered = true
 
-        if (id !== r.chef.id) {
+        if (id !== r.chef?.id) {
           if (r.food.id === foodId) {
-            const points = r.players.filter(p => !p.answered && p.id !== r.chef.id).length
+            const points = r.players.filter(p => !p.answered && p.id !== r.chef?.id).length
             player.score += points + 1
             player.roundScore += points + 1
 
@@ -224,7 +221,7 @@ module.exports = io => {
        * 
        */
       const handleEnterGameEvent = () => {
-        console.log(`player: ${name} enter game ${room} with id: ${id}`)
+        console.log(`player: ${name} entered game ${room} with id: ${id}`)
 
         if (r.players.every(player => player.id !== id)) {
           const player = {
@@ -264,8 +261,7 @@ module.exports = io => {
         r.players = r.players.filter(p => p.id !== id)
         refreshGameData()
 
-        console.log(r.chef.id, r.food.id, id, r.chef.id === id, r.food.id === id)
-        if (r.chef.id === id || r.food.id === id) {
+        if (r.chef?.id === id || r.food.id === id) {
           nextRound(false)
         }
 

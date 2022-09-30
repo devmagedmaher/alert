@@ -1,10 +1,10 @@
 
 
 /**
- * get random array elements
+ * get random elements of array
  * 
  */
-module.exports = (array, length = 1) => {
+ module.exports.getRandomElements = (array, length = 1) => {
   return array
     .map(value => ({ value, sort: Math.random() }))
     .sort((a, b) => a.sort - b.sort)
