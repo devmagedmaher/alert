@@ -2,21 +2,12 @@ import React from 'react'
 import { useGame } from '..'
 import {
   Button,
-  Group,
   Stack,
-  Loader,
   Center,
-  Title,
 } from '@mantine/core'
-import PlayersList from '../components/playersList'
 
 const IntroStage = () => {
-  const { room, name, socket, status, setStage, game } = useGame()
-
-  const exitRoom = () => {
-    // navigate('/join')
-    window.location.href = '/join'
-  }
+  const { socket, status, setStage, game } = useGame()
 
   const enterGame = () => {
     if (game.started) {

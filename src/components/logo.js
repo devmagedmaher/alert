@@ -18,7 +18,7 @@ const useStyles = createStyles(theme => ({
   }
 }))
 
-const Logo = ({}) => {
+const Logo = () => {
   const { classes } = useStyles()
 
   return (

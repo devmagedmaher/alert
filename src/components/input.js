@@ -29,6 +29,8 @@ const Input = ({
         inputRef.current.focus()
       }
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

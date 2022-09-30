@@ -1,11 +1,9 @@
 import React from 'react'
 import { useGame } from '..'
-import PlayersList from '../components/playersList'
 import {
   Container,
   Stack,
   Button,
-  Title,
   Text,
 } from '@mantine/core'
 

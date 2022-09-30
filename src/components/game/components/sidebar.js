@@ -1,5 +1,5 @@
 import React from 'react'
-import { ActionIcon, Box, Button, createStyles, Divider, Footer, Group, Navbar, Paper, ScrollArea, Stack, Text, Title } from '@mantine/core'
+import { ActionIcon, createStyles, Divider, Group, Navbar, ScrollArea, Text, Title } from '@mantine/core'
 import { IconDoorExit } from '@tabler/icons'
 import { HEADER_HEIGHT } from '../../header'
 import PlayersList from './playersList'

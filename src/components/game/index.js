@@ -44,7 +44,11 @@ const Game = (props) => {
       }))
     }
   }
-  React.useEffect(() => { initializeConnection() }, [])
+  React.useEffect(() => {
+    initializeConnection()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   /**
    * listen to socket events
@@ -68,6 +72,8 @@ const Game = (props) => {
         socket.off('gamePaused')
       }
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket])
 
   /**

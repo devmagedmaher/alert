@@ -4,7 +4,6 @@ import {
   Navigate,
 } from 'react-router-dom'
 import Game from '../components/game';
-import Layout from '../components/Layout';
 
 const RoomPage = () => {
   const { room } = useParams()
@@ -12,8 +11,9 @@ const RoomPage = () => {
   const id = localStorage.getItem('id')
 
   React.useEffect(() => {
-    console.log('set room name')
     localStorage.setItem('room', room)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (!name || !room) {

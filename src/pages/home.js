@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Center, Container, Stack } from '@mantine/core';
+import { Button, Stack } from '@mantine/core';
 import { FullSizeLogo } from '../components/logo';
 import Layout from '../components/Layout';
 
