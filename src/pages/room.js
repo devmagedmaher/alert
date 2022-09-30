@@ -4,6 +4,7 @@ import {
   Navigate,
 } from 'react-router-dom'
 import Game from '../components/game';
+import Layout from '../components/Layout';
 
 const RoomPage = () => {
   const { room } = useParams()
@@ -20,12 +21,10 @@ const RoomPage = () => {
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <Game room={room} name={name} id={id} />
-      </header>
-    </div>
-  );
+    <Layout>
+      <Game room={room} name={name} id={id} />
+    </Layout>
+  )
 }
 
 export default RoomPage;
