@@ -6,6 +6,7 @@
   "dependencies": {
     "@emotion/react": "^11.10.4",
     "@mantine/core": "^5.4.1",
+    "@mantine/form": "^5.4.2",
     "@mantine/hooks": "^5.4.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -26,7 +27,7 @@
     "start": "react-scripts start",
     "server": "nodemon ./server/app.js",
     "build": "react-scripts build",
-    "deploy" : "gh-pages -d build -b master --remote gh-pages",
+    "deploy": "gh-pages -d build -b master --remote gh-pages",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

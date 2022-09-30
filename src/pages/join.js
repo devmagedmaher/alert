@@ -1,97 +1,69 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useForm } from '@mantine/form';
 import {
   Button,
-  Input,
   Stack,
 } from '@mantine/core';
+import Layout from '../components/Layout';
+import Input from '../components/input';
 
 const JoinPage = () => {
   const navigate = useNavigate()
-  const [values, setValues] = React.useState({
-    room: localStorage.getItem('room') || '',
-    name: localStorage.getItem('name') || '',
+  const form = useForm({
+    initialValues: {
+      kitchen: '',
+      name: '',
+    },
+    validate: {
+      kitchen: val => val === '' ? 'Please enter the kitchen code' : null, 
+      name: val => val === '' ? 'Please enter your name' : null, 
+    }
   })
-  const [errors, setErrors] = React.useState({})
 
-  const validator = () => {
-    const e = {}
-
-    if (values.room?.trim() === '') {
-      e.room = 'Please enter the room code!'
-    }
-
-    if (values.name?.trim() === '') {
-      e.name = 'Please enter your name!'
-    }
-
-    setErrors(e)
-
-    return Object.keys(e).length > 0
-      ? false
-      : true
-  }
-
-  const goToRoom = () => {
-    if (validator()) {
-      // clear errors
-      setErrors({})
-
+  const goToKitchen = () => {
+    form.validate()
+    if (form.isValid()) {
+      const { name, kitchen  } = form.values
       // store name in local storage
-      localStorage.setItem('name', values.name)
+      localStorage.setItem('name', name)
       localStorage.setItem('id', `${Math.floor(Math.random() * 1000)}${Date.now()}`)
 
-      // go to room page
-      navigate(`/r/${values.room}`)
+      // go to kitchen page
+      navigate(`/r/${kitchen}`)
     }
-  }
-
-  const handleChange = e => {
-    const { name, value } = e.target
-    setValues(v => ({ ...v, [name]: value }))
-    setErrors(e => ({ ...e, [name]: null}))
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <Stack>
-          <Input.Wrapper
-            error={errors.room}
-            size="lg"
-            >
-            <Input
-              name="room"
-              placeholder='Room Code'
-              value={values.room}
-              onChange={handleChange}
-              invalid={errors.room}
-              size='lg'
-            />
-          </Input.Wrapper>
+    <Layout>
+      <Stack>
+        <Input
+          name="kitchen"
+          label="Kitchen Code"
+          value={form.values.kitchen}
+          error={form.errors.kitchen}
+          onChange={text => form.setFieldValue('kitchen', text)}
+          onEnter={goToKitchen}
+          size="lg"
+        />
+        <Input
+          name="name"
+          label="Your name"
+          value={form.values.name}
+          error={form.errors.name}
+          onChange={text => form.setFieldValue('name', text)}
+          onEnter={goToKitchen}
+          size="lg"
+        />
 
-          <Input.Wrapper
-            error={errors.name}
-            size="lg"
-            >
-            <Input
-              name="name"
-              placeholder='Your name'
-              value={values.name}
-              onChange={handleChange}
-              invalid={errors.name}
-              size='lg'
-            />
-          </Input.Wrapper>
-
-          <Button
-            onClick={goToRoom}
-            size='md'
-          >Join</Button>
-        </Stack>
-      </header>
-    </div>
-  );
+        <Button
+          onClick={goToKitchen}
+          variant="outline"
+          size='md'
+        >Join {'>>'}</Button>
+      </Stack>
+    </Layout>
+  )
 }
 
 export default JoinPage;
