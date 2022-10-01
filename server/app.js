@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-// const path = require('path');
+const path = require('path');
 const cors = require('cors');
 const { isDev } = require('./config');
 if (isDev) require('dotenv').config();
@@ -15,9 +15,10 @@ app.use('/test', (req, res) => {
   res.send('server is running...');
 });
 
-// // serve react project static files
-// app.use('/', express.static('client/build'));
-// app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'client', 'build', 'index.html')));
+// serve react project static files
+const root = require('path').join(__dirname, 'public')
+app.use(express.static(root));
+app.get('*', (req, res) => res.sendFile('index.html', { root }));
 
 // server
 const PORT = process.env.PORT || 5000;
