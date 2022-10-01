@@ -30,6 +30,7 @@ const JoinPage = () => {
       const { name, kitchen } = form.values
       // store name in local storage
       localStorage.setItem('name', name)
+      localStorage.setItem('room', kitchen)
 
       setLoading(true)
       // go to kitchen page
