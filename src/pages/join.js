@@ -1,15 +1,13 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useForm } from '@mantine/form';
 import {
   Button,
   Stack,
 } from '@mantine/core';
-import Layout from '../components/Layout';
+import Layout from '../components/layout';
 import Input from '../components/input';
 
 const JoinPage = () => {
-  const navigate = useNavigate()
   const form = useForm({
     initialValues: {
       kitchen: localStorage.getItem('room') || '',
@@ -24,16 +22,18 @@ const JoinPage = () => {
           : null,
     }
   })
+  const [loading, setLoading] = React.useState(false)
 
   const goToKitchen = () => {
     form.validate()
     if (form.isValid()) {
-      const { name, kitchen  } = form.values
+      const { name, kitchen } = form.values
       // store name in local storage
       localStorage.setItem('name', name)
 
+      setLoading(true)
       // go to kitchen page
-      navigate(`/r/${kitchen}`)
+      window.location.href = `/r/${kitchen}`
     }
   }
 
@@ -47,6 +47,7 @@ const JoinPage = () => {
           error={form.errors.kitchen}
           onChange={text => form.setFieldValue('kitchen', text)}
           onEnter={goToKitchen}
+          disabled={loading}
           size="lg"
         />
         <Input
@@ -56,6 +57,7 @@ const JoinPage = () => {
           error={form.errors.name}
           onChange={text => form.setFieldValue('name', text)}
           onEnter={goToKitchen}
+          disabled={loading}
           size="lg"
         />
 
@@ -63,6 +65,8 @@ const JoinPage = () => {
           onClick={goToKitchen}
           variant="outline"
           size='md'
+          disabled={loading}
+          loading={loading}
         >Join {'>>'}</Button>
       </Stack>
     </Layout>

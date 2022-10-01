@@ -6,8 +6,11 @@ import {
   Stack,
   Center,
   useMantineTheme,
+  Text,
 } from '@mantine/core'
 import PlayersList from '../components/playersList'
+
+const MAX_PLAYERS = 16
 
 const IntroStage = () => {
   const theme = useMantineTheme()
@@ -15,24 +18,30 @@ const IntroStage = () => {
   const { socket, status, setStage, game } = useGame()
 
   const enterGame = () => {
-    if (game.started) {
-      setStage('game')
-    }
-    else {
-      setStage('lobby')
-    }
     socket.emit('enterGame')
+
+    // if (game.started) {
+    //   setStage('game')
+    // }
+    // else {
+    //   setStage('lobby')
+    // }
   }
 
   return (
     <Stack>
       <Center>
-        {status ? status : null}
+        <Text>
+          {status ? status : null}
+        </Text>
+        {game.players?.length >= MAX_PLAYERS ? <Text>
+          Game is full of players
+        </Text> : null}
       </Center>
       <Button
         onClick={enterGame}
         color='teal'
-        disabled={status}
+        disabled={status || game.players?.length >= MAX_PLAYERS}
         loading={status === 'loading'}
         mb="md"
       >

@@ -1,17 +1,30 @@
-const { IconBrandGoogle } = require('@tabler/icons')
 const Utils = require('./utils')
 
 const COUNT_DOWN_RECIPE = 20 // in seconds
 const COUNT_DOWN_ANSWER = 20 // in seconds
 const COUNT_DOWN_FOOD = 15 // in seconds
 const MAX_ROUNDS = 5
+const MAX_PLAYERS = 16
 let rooms = {}
 
 module.exports = io => {
   return async socket => {
     try {
       const { room, name, id } = socket.handshake.query;
-      console.log(`player: ${name} connected to room: ${room}`)
+      console.log(`player: ${name} is joining room: ${room}`)
+      let playerObject = { id, name, score: 0, roundScore: 0, connected: true }
+
+      const selfMessage = (text, type) => {
+        socket.emit('message', { text, type })
+      }
+
+      const broadcastMessage =(text, type) => {
+        socket.broadcast.to(room).emit('message', { text, type })
+      }
+
+      const roomMessage =(text, type) => {
+        io.to(room).emit('message', { text, type })
+      }
 
       /**
        * Initialize room if it doesn't exist
@@ -29,7 +42,34 @@ module.exports = io => {
       }
       const r = rooms[room]
 
+      const playerOnline = r.players.find(p => p.id === id)
+      const playerOffline = r.offlinePlayers.find(p => p.id === id)
+      // if player id already connected
+      if (playerOnline || playerOffline?.connected === true) {
+        selfMessage('Your id is alread in use in this room', 'error')
+        socket.disconnect()
+        return
+      }
+      // if player id already exists but not connected
+      else if (playerOffline) {
+        r.offlinePlayers = r.offlinePlayers.map(p => {
+          if (p.id === id) {
+            p.name = name
+            p.connected = true
+          }
+          return p
+        })
+      }
+      // new player to the room
+      else {
+        r.offlinePlayers = [ ...r.offlinePlayers, playerObject ]
+      }
+
+      // join sockte room
       socket.join(r.name)
+
+      selfMessage(`You have joined "${room}" kitchen`)
+      broadcastMessage(`${name} has joined "${room}" kitchen`)
 
       /**
        * Update room players with newer game data
@@ -64,7 +104,10 @@ module.exports = io => {
         r.paused = false
         r.round = 0
         r.lastRound = false
-        r.players = r.players.map(p => ({ ...p, score: 0 }))
+        r.players = r.players.map(p => {
+          p.score = 0
+          return p
+        })
         refreshGameData()
 
         io.to(room).emit('gameStarted')
@@ -93,8 +136,7 @@ module.exports = io => {
                 }      
               }
               else {
-                r.showFood = true
-                resetCounter(COUNT_DOWN_FOOD)
+                showFood()
               }
             }
             else {
@@ -120,6 +162,17 @@ module.exports = io => {
       }
 
       /**
+       * show food
+       * 
+       */
+      const showFood = () => {
+        r.showFood = true
+        resetCounter(COUNT_DOWN_FOOD)
+        refreshGameData()
+        roomMessage(`recipe "${r.recipe}" is for ${r.food.name}`)
+      }
+
+      /**
        * iterate game rounds
        * 
        */
@@ -134,13 +187,13 @@ module.exports = io => {
           // reset round
           r.recipe = null
           r.showFood = false
-          r.players = r.players.map(p => ({
-            ...p,
-            answered: false,
-            answer: null,
-            isRight: null,
-            roundScore: 0,
-          }))
+          r.players = r.players.map(p => {
+            p.answered = false
+            p.answer = null
+            p.isRight = null
+            p.roundScore = 0
+            return p
+          })
 
           const nonChefPlayers = r.chef
             ? r.players.filter(p => p.id !== r.chef?.id)
@@ -161,6 +214,8 @@ module.exports = io => {
 
           // set count down
           resetCounter()
+
+          roomMessage(`Round ${r.round} started!`)
         })
       }
     
@@ -171,10 +226,15 @@ module.exports = io => {
       const pauseGame = () => {
         r.paused = true
         r.started = false
-        r.players = r.players.map(p => ({ ...p, isRight: null }))
+        r.players = r.players.map(p => {
+          p.isRight = null
+          p.roundScore = 0
+          return p
+        })
         io.to(room).emit('gamePaused')
         refreshGameData()
         stopCounter()
+        roomMessage(`Geme ended!`)
       }
 
       /**
@@ -185,6 +245,9 @@ module.exports = io => {
         // store recipe
         r.recipe = recipe
         refreshGameData()
+
+        selfMessage(`You have submitted your recipe`)
+        broadcastMessage(`Chef has submitted his recipe`)
     
         // restart counter
         resetCounter(COUNT_DOWN_ANSWER)
@@ -222,13 +285,14 @@ module.exports = io => {
           }
         }
 
-        if (r.players.every(p => p.answered)) {
-          r.showFood = true
-          
-          // restart counter
-          resetCounter(COUNT_DOWN_FOOD)
+        const pendingPlayers = r.players.filter(p => !p.answered).length
+        selfMessage(`You have submitted your answer (wating: ${pendingPlayers})`)
+        broadcastMessage(`${name} has submitted his answer (wating: ${pendingPlayers})`)
+
+        if (pendingPlayers === 0) {
+          showFood()
         }
-        
+
         refreshGameData()
       }
     
@@ -239,19 +303,24 @@ module.exports = io => {
       const handleEnterGameEvent = () => {
         console.log(`player: ${name} entered game ${room} with id: ${id}`)
 
-        let player = { id, name, score: 0, roundScore: 0 }
-        const wasOffline = r.offlinePlayers.find(p => p.id === id)
-        if (wasOffline) {
-          player = { ...wasOffline, name }
-        }
-
-        const isDuplicated = r.players.find(p => p.id === id)
-        if (isDuplicated) {
-          refreshGameData()
+        // limit in-game players
+        if (r.players.length >= MAX_PLAYERS) {
+          selfMessage(`Maximum ${MAX_PLAYERS} players can be in the same game!`, 'error')
           return
         }
+        
+        // update information if player was offline in this room
+        const wasOffline = r.offlinePlayers.find(p => p.id === id)
+        if (wasOffline) {
+          wasOffline.name = name
+          playerObject = wasOffline
+        }
 
-        r.players = [ ...r.players, player ]
+        // add player to online list
+        r.players = [ ...r.players, playerObject ]
+
+        // remove player from offline list
+        r.offlinePlayers = r.offlinePlayers.filter(p => p.id !== id)
 
         refreshGameData()
       }
@@ -262,6 +331,9 @@ module.exports = io => {
        */
       const handleStartGameEvent = () => {
         startGame()
+
+        selfMessage(`You have started the game`)
+        broadcastMessage(`${name} has started the game`)
       }
 
       /**
@@ -276,7 +348,7 @@ module.exports = io => {
         nextRound()
       }
 
-      /**
+0      /**
        * SkipAnswer: skip answering for this round
        * 
        */
@@ -286,13 +358,14 @@ module.exports = io => {
         player.answer = '(skipped)'
         player.answered = true
 
-        if (r.players.every(p => p.answered)) {
-          r.showFood = true
-          
-          // restart counter
-          resetCounter(COUNT_DOWN_FOOD)
+        const pendingPlayers = r.players.filter(p => !p.answered).length
+        selfMessage(`You have skipped this round (wating: ${pendingPlayers})`)
+        broadcastMessage(`${name} has skipped this round (wating: ${pendingPlayers})`)
+
+        if (pendingPlayers === 0) {
+          showFood()
         }
-        
+
         refreshGameData()
       }
 
@@ -304,24 +377,40 @@ module.exports = io => {
         console.log(`player: ${name} disconnected from room: ${room}`)
 
         // find player on online list
-        const player = r.players.find(p => p.id === id)
+        const playerOnline = r.players.find(p => p.id === id)
+        const playerOffline = r.offlinePlayers.find(p => p.id === id)
 
-        // add player to offline list if he w
-        if (player) {
-          r.offlinePlayers = [ ...r.offlinePlayers, player ]
+        // add player to offline list if he was online
+        if (playerOnline) {
+          // add to offline list
+          playerOnline.connected = false
+          playerOnline.isRight = null
+          playerOnline.roundScore = 0
+          r.offlinePlayers = [ ...r.offlinePlayers, playerOnline ]
 
           // remove from online list
           r.players = r.players.filter(p => p.id !== id)
 
-          // skip round if disconnected user was a chef or a food
-          if (r.chef?.id === id || r.food?.id === id) {
-            nextRound(false)
-          }
+          broadcastMessage(`${name} been disconnected`, 'error')
 
           // pause game if not enough players around
           if (!r.paused && r.players.length < 3) {
             pauseGame()
-          }        
+          }
+    
+          // skip round if disconnected user was a chef or a food
+          else if (r.chef?.id === id || r.food?.id === id) {
+            nextRound(false)
+          }
+        }
+        else if (playerOffline) {
+          // update connected status
+          r.offlinePlayers = r.offlinePlayers.map(p => {
+            if (p.id === id) {
+              p.connected = false
+            }
+            return p
+          })
         }
 
         refreshGameData()

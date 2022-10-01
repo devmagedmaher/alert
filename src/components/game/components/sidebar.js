@@ -1,8 +1,7 @@
 import React from 'react'
 import { useGame } from '..'
 import { useMediaQuery } from '@mantine/hooks'
-import { ActionIcon, Center, createStyles, Divider, Group, Navbar, ScrollArea, Text, Title, useMantineTheme } from '@mantine/core'
-import { IconDoorExit } from '@tabler/icons'
+import { createStyles, Divider, Navbar, ScrollArea, Text, Title, useMantineTheme } from '@mantine/core'
 import { HEADER_HEIGHT } from '../../header'
 import PlayersList from './playersList'
 
@@ -33,38 +32,11 @@ const Sidebar = () => {
       return stage ? `${stage} (${game.countDown})` : null
   }
 
-  const exitKitchen = () => {
-    window.location.href = '/join'
-  }
-
-  return sm ? (
-    <Navbar width={{ base: SIDEBAR_WIDTH_MOBILE }} height={`calc(100vh - ${HEADER_HEIGHT}px)`} p="lg">
-      <Center>
-        <ActionIcon
-          onClick={exitKitchen}
-          variant="outlined"
-          color='red'
-          size='md'
-        >
-          <IconDoorExit size={16} style={{ transform: 'scaleX(-1)' }} />
-        </ActionIcon>
-      </Center>
-    </Navbar>
-  ) : (
-    <Navbar width={{ base: SIDEBAR_WIDTH }} height={`calc(100vh - ${HEADER_HEIGHT}px)`}>
+  return sm ? null : (
+    <Navbar width={{ base: SIDEBAR_WIDTH }} height={`calc(100% - ${HEADER_HEIGHT}px)`}>
       <ScrollArea className={classes.scrollArea} type="always">
         <Navbar.Section p='lg'>
-          <Group position='apart'>
-            <Title order={4} mb="sm">Kitchen "{room}" {game.started ? '(Started)' : null}</Title>
-            <ActionIcon
-              onClick={exitKitchen}
-              variant="outlined"
-              color='red'
-              size='md'
-            >
-              <IconDoorExit size={16} style={{ transform: 'scaleX(-1)' }} />
-            </ActionIcon>
-          </Group>
+          <Title order={4} mb="sm">Kitchen "{room}" {game.started ? '(Started)' : null}</Title>
           <Text>Round: {game.round}/{game.rounds}</Text>
           {game.started ? <Text>Stage: {renderGameStage()}</Text> : null}
         </Navbar.Section>

@@ -3,8 +3,11 @@ import { io } from 'socket.io-client'
 import GameStage from './stages/gameStage'
 import IntroStage from './stages/introStage'
 import LobbyStage from './stages/lobbyStage'
-import Layout from '../Layout'
+import Layout from '../layout'
 import Sidebar from './components/sidebar'
+import Messages from './components/messages'
+import { Center, Grid, Stack } from '@mantine/core'
+import FullScreenButton from '../fullScreenButton'
 
 const GameContext = React.createContext({
   setStage: () => false,
@@ -25,6 +28,7 @@ const Game = (props) => {
   const stageRef = React.useRef()
   const [status, setStatus] = React.useState('loading')
   const [game, setGame] = React.useState({})
+  const [messages, setMessages] = React.useState([])
   const [isAdmin, setIsAdmin] = React.useState(false)
   const [me, setMe] = React.useState()
 
@@ -46,6 +50,7 @@ const Game = (props) => {
     socket.on('connect', handleConnect)
     socket.on('disconnect', handleDisconnect)
     socket.on('refresh', handleGameRefresh)
+    socket.on('message', handleRceiveMessage)
     socket.on('gameStarted', handleGameStarted)
     socket.on('gamePaused', handleGamePaused)
 
@@ -54,6 +59,7 @@ const Game = (props) => {
       socket.disconnect()
       socket.off('connect')
       socket.off('disconnect')
+      socket.off('message')
       socket.off('refresh')
       socket.off('gameStarted')
       socket.off('gamePaused')
@@ -69,6 +75,7 @@ const Game = (props) => {
   const handleConnect = () => {
     console.log('connected')
     setStatus()
+    setMessages([])
   }
 
   /**
@@ -97,6 +104,34 @@ const Game = (props) => {
 
     // set self player data
     setMe(() => data.players.find(p => p.id === props.id))
+
+    // set stage depending on game status and player lists
+    if (data.players.some(p => p.id === props.id)) {
+      if (data.started) {
+        if (stage !== 'game') {
+          setStage('game')
+        }
+      }
+      else {
+        if (stage !== 'lobby') {
+          setStage('lobby')
+        } 
+      }
+    }
+    else {
+      if (stage !== undefined) {
+        setStage()
+      }
+    }
+  }
+
+  /**
+   * handle recieve messages
+   * 
+   */
+  const handleRceiveMessage = message => {
+    console.log(message)
+    setMessages(messages => [ message, ...messages ])
   }
 
   /**
@@ -149,12 +184,25 @@ const Game = (props) => {
       setStage,
       status,
       game,
+      messages,
       isAdmin,
       me,
       ...props
     }}>
-      <Layout navbar={<Sidebar />}>
-        {renderStage()}
+      <Layout navbar={<Sidebar />} centerize={false}>
+        <FullScreenButton />
+        <Grid grow style={{ height: '100%' }}>
+          <Grid.Col md={9} xs={12}>
+            <Center style={{ height: '100%' }}>
+              {renderStage()}
+            </Center>
+          </Grid.Col>
+          <Grid.Col lg="content" xs={12}>
+            <Stack justify="flex-end" style={{ height: '100%' }}>
+              <Messages />
+            </Stack>
+          </Grid.Col>
+        </Grid>
       </Layout>
     </GameContext.Provider>
   )

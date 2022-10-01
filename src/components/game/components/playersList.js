@@ -16,8 +16,8 @@ const PlayersList = ({ roundScore = true }) => {
     <Table>
       <thead>
         <tr>
-          <th>rank</th>
-          <th>Name</th>
+          <th colSpan={2}>rank</th>
+          <th colSpan={2}>Name</th>
           {roundScore ? <th style={{ textAlign: 'center' }}>Round</th> : null}
           <th style={{ textAlign: 'center' }}>Total</th>
         </tr>
@@ -29,16 +29,17 @@ const PlayersList = ({ roundScore = true }) => {
             .map((player, index) => <Row player={player} index={index} roundScore={roundScore} />)
 
           : <tr>
-            <td colSpan={roundScore ? 4 : 3} align="center">No one in the game yet</td>
+            <td colSpan={roundScore ? 6 : 5} align="center">No one in the game yet</td>
           </tr>
         }
         <tr>
-          <td colSpan={roundScore ? 4 : 3} style={{ padding: 0 }}>
-            <Divider />
+          <td colSpan={roundScore ? 6 : 5} style={{ padding: 0 }}>
+            <Divider size="xl" />
           </td>
         </tr>
         {game.offlinePlayers && game.offlinePlayers?.length
           ? game.offlinePlayers
+            .sort((a, b) => b.connected - a.connected)
             .map((player, index) => <Row player={player} index={index} roundScore={roundScore} isOffline />)
 
           : null
@@ -83,10 +84,10 @@ const Row = ({ player, index, isOffline, roundScore }) => {
   }
 
   const renderName = () => {
-    const { name, isAdmin } = player
-    if (isOffline) return name
+    const { name, connected } = player
+    if (isOffline) return <Text color={connected ? '' : 'gray'}>{name}</Text>
 
-    return <Group>{name} {isAdmin ? <IconKey size={16} /> : null}</Group>
+    return <Text color={renderRightnessColor()}>{name}</Text>
   }
 
   const renderDeltaScore = () => {
@@ -107,13 +108,18 @@ const Row = ({ player, index, isOffline, roundScore }) => {
       <td>
         <Group position='apart'>
           <Text pr="md">{renderRank()}</Text>
-          {renderRankMedal()}
         </Group>
       </td>
       <td>
-        <Text color={renderRightnessColor()}>
+          {renderRankMedal()}
+      </td>
+      <td>
+        <Group>
           {renderName()}
-        </Text>
+        </Group>
+      </td>
+      <td>
+          {player.isAdmin ? <IconKey size={16} /> : null}
       </td>
       {roundScore ? <td align='center'>
         <Text color={renderRightnessColor()}>

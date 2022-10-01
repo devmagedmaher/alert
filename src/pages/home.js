@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Stack } from '@mantine/core';
 import { FullSizeLogo } from '../components/logo';
-import Layout from '../components/Layout';
+import Layout from '../components/layout';
 
 const HomePage = () => {
   const navigate = useNavigate()

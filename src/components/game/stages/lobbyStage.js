@@ -26,7 +26,7 @@ const LobbyStage = () => {
           {game.players?.length < 3
             ? "Minimum 3 players are required for game to start"
             : isAdmin
-              ? "You are good to go!"
+              ? "Other players are waiting for you to start the game."
               : "Wait for admin to start the game."
           }
         </Text>
