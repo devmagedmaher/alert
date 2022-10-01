@@ -12,69 +12,55 @@ const GameContext = React.createContext({
   game: {},
 });
 
+const room = localStorage.getItem('room')
+const name = localStorage.getItem('name')
+const id = localStorage.getItem('id')
+const socket = io('https://bcab-156-204-69-112.eu.ngrok.io', {
+  autoConnect: false,
+  query: { room, name, id }
+})
+
 const Game = (props) => {
   const [stage, setStage] = React.useState()
   const stageRef = React.useRef()
   const [status, setStatus] = React.useState('loading')
   const [game, setGame] = React.useState({})
   const [isAdmin, setIsAdmin] = React.useState(false)
-  const [socket, setSocket] = React.useState()
-  const socketRef = React.useRef()
-  const connecting = React.useRef(false)
-
-  // update socket ref
-  React.useEffect(() => { socketRef.current = socket }, [socket])
+  const [me, setMe] = React.useState()
 
   // update stage ref
   React.useEffect(() => { stageRef.current = stage }, [stage])
 
   /**
-   * initialize connection to socket server
-   */
-  const initializeConnection = () => {
-    if (connecting.current === false) {
-      connecting.current = true
-      setStatus('loading')
-      setSocket(() => io('https://bcab-156-204-69-112.eu.ngrok.io', {
-        query: {
-          room: props.room,
-          name: props.name,
-          id: props.id,
-        }
-      }))
-    }
-  }
-  React.useEffect(() => {
-    initializeConnection()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  /**
-   * listen to socket events
+   * connect and listen to socket events
    * 
    */
   React.useEffect(() => {
-    if (socket) {
+    console.log('socket established', socket)
 
-      socket.on('connect', handleConnect)
-      socket.on('disconnect', handleDisconnect)
-      socket.on('refresh', handleGameRefresh)
-      socket.on('gameStarted', handleGameStarted)
-      socket.on('gamePaused', handleGamePaused)
+    // connect to socket server
+    setStatus('loading')
+    socket.connect()
 
-      return () => {
-        socket.disconnect()
-        socket.off('connect')
-        socket.off('disconnect')
-        socket.off('refresh')
-        socket.off('gameStarted')
-        socket.off('gamePaused')
-      }
+
+    socket.on('connect', handleConnect)
+    socket.on('disconnect', handleDisconnect)
+    socket.on('refresh', handleGameRefresh)
+    socket.on('gameStarted', handleGameStarted)
+    socket.on('gamePaused', handleGamePaused)
+
+    return () => {
+      console.log('disconnect', socket)
+      socket.disconnect()
+      socket.off('connect')
+      socket.off('disconnect')
+      socket.off('refresh')
+      socket.off('gameStarted')
+      socket.off('gamePaused')
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket])
+  }, [])
 
   /**
    * handle socket connection
@@ -100,8 +86,17 @@ const Game = (props) => {
    */
   const handleGameRefresh = data => {
     console.log('refreshed data', data)
+
+    // set admin flag
+    if (data.players[0]) {
+      data.players[0].isAdmin = true
+    }
+
     setGame(data)
     setIsAdmin(data.players[0]?.id === props.id)
+
+    // set self player data
+    setMe(() => data.players.find(p => p.id === props.id))
   }
 
   /**
@@ -150,11 +145,12 @@ const Game = (props) => {
    */
   return (
     <GameContext.Provider value={{
-      socket: socketRef.current,
+      socket,
       setStage,
       status,
       game,
       isAdmin,
+      me,
       ...props
     }}>
       <Layout navbar={<Sidebar />}>

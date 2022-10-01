@@ -17,10 +17,9 @@ import PlayersList from './playersList'
 const FoodSelect = () => {
   const theme = useMantineTheme()
   const sm = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`)
-  const { game, socket, isAdmin } = useGame()
+  const { game, socket, isAdmin, me } = useGame()
   // make a copy of current game players array
   const [options] = useState(() => Array.from(game.players.sort((a, b) => a.name.localeCompare(b.name))))
-  const [answer, setAnswer] = React.useState(null)
   const form = useForm({
     initialValues: {
       food: '',
@@ -37,10 +36,6 @@ const FoodSelect = () => {
 
       // send answer
       socket.emit('submitFood', food)
-
-      // display answer
-      const selectedPlayer = game.players.find(p => p.id === food)
-      setAnswer(selectedPlayer.name)
     }
   }
 
@@ -49,7 +44,6 @@ const FoodSelect = () => {
   }
 
   const skipAnswer = () => {
-    setAnswer('(Skipped)')
     socket.emit('skipAnswer')
   }
 
@@ -74,13 +68,13 @@ const FoodSelect = () => {
     )
   }
 
-  if (answer) {
+  if (me.answered) {
     return (
       <Container>
         <Stack>
           <Title order={3}>Recipe: {game.recipe}</Title>
           <Text mb="md">
-            Your answer is: {answer}. wait for other players {game.countDown}
+            Your answer is: {me.answer}. wait for other players {game.countDown}
           </Text>
 
           {sm ? <PlayersList /> : null}

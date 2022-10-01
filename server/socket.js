@@ -137,6 +137,7 @@ module.exports = io => {
           r.players = r.players.map(p => ({
             ...p,
             answered: false,
+            answer: null,
             isRight: null,
             roundScore: 0,
           }))
@@ -197,6 +198,9 @@ module.exports = io => {
         // check answer
         const player = r.players.find(p => p.id === id)
         const chef = r.players.find(p => p.id === r.chef?.id)
+
+        const answer = r.players.find(p => p.id === foodId)
+        player.answer = answer?.name
         player.answered = true
 
         if (id !== r.chef?.id) {
@@ -241,6 +245,12 @@ module.exports = io => {
           player = { ...wasOffline, name }
         }
 
+        const isDuplicated = r.players.find(p => p.id === id)
+        if (isDuplicated) {
+          refreshGameData()
+          return
+        }
+
         r.players = [ ...r.players, player ]
 
         refreshGameData()
@@ -272,8 +282,9 @@ module.exports = io => {
        */
       const handleSkipAnswerEvent = () => {
         const player = r.players.find(p => p.id === id)
-        player.answered = true
 
+        player.answer = '(skipped)'
+        player.answered = true
 
         if (r.players.every(p => p.answered)) {
           r.showFood = true
