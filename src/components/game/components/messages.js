@@ -69,7 +69,9 @@ const Messages = () => {
       </Group>
       <Divider />
       <ScrollArea
-        type="always"
+        pt="sm"
+        type="auto"
+        offsetScrollbars
         className={renderScrollAreaClasses()}
       >
         {messages.map((message, index) => (

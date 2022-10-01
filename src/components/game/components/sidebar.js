@@ -34,7 +34,7 @@ const Sidebar = () => {
 
   return sm ? null : (
     <Navbar width={{ base: SIDEBAR_WIDTH }} height={`calc(100% - ${HEADER_HEIGHT}px)`}>
-      <ScrollArea className={classes.scrollArea} type="always">
+      <ScrollArea className={classes.scrollArea} type="auto">
         <Navbar.Section p='lg'>
           <Title order={4} mb="sm">Kitchen "{room}" {game.started ? '(Started)' : null}</Title>
           <Text>Round: {game.round}/{game.rounds}</Text>
@@ -47,7 +47,7 @@ const Sidebar = () => {
             <PlayersList />
         </Navbar.Section>
 
-        <Navbar.Section>
+        <Navbar.Section py="sm">
           {/* FOOTER */}
         </Navbar.Section>
       </ScrollArea>
