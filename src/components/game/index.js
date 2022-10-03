@@ -15,13 +15,6 @@ const GameContext = React.createContext({
   game: {},
 });
 
-const room = localStorage.getItem('room')
-const name = localStorage.getItem('name')
-const id = localStorage.getItem('id')
-const socket = io('https://bcab-156-204-69-112.eu.ngrok.io', {
-  autoConnect: false,
-  query: { room, name, id }
-})
 
 const Game = (props) => {
   const [stage, setStage] = React.useState()
@@ -32,6 +25,21 @@ const Game = (props) => {
   const [isAdmin, setIsAdmin] = React.useState(false)
   const [me, setMe] = React.useState()
 
+  const { room, name, id } = props
+  const socketRef = React.useRef(io('https://b65a-156-204-168-31.eu.ngrok.io', {
+    autoConnect: false,
+    query: { room, name, id }
+  }))
+  const [socket, setSocket] = React.useState()
+
+
+  // update socket state
+  React.useEffect(() => {
+    if (socketRef.current) {
+      setSocket(socketRef.current)
+    }
+  }, [socketRef])
+  
   // update stage ref
   React.useEffect(() => { stageRef.current = stage }, [stage])
 
@@ -41,32 +49,33 @@ const Game = (props) => {
    */
   React.useEffect(() => {
     console.log('socket established', socket)
-
-    // connect to socket server
-    setStatus('loading')
-    socket.connect()
-
-
-    socket.on('connect', handleConnect)
-    socket.on('disconnect', handleDisconnect)
-    socket.on('refresh', handleGameRefresh)
-    socket.on('message', handleRceiveMessage)
-    socket.on('gameStarted', handleGameStarted)
-    socket.on('gamePaused', handleGamePaused)
-
-    return () => {
-      console.log('disconnect', socket)
-      socket.disconnect()
-      socket.off('connect')
-      socket.off('disconnect')
-      socket.off('message')
-      socket.off('refresh')
-      socket.off('gameStarted')
-      socket.off('gamePaused')
+    if (socket) {
+      // connect to socket server
+      setStatus('loading')
+      socket.connect()
+  
+  
+      socket.on('connect', handleConnect)
+      socket.on('disconnect', handleDisconnect)
+      socket.on('refresh', handleGameRefresh)
+      socket.on('message', handleRceiveMessage)
+      socket.on('gameStarted', handleGameStarted)
+      socket.on('gamePaused', handleGamePaused)
+  
+      return () => {
+        console.log('disconnect', socket)
+        socket.disconnect()
+        socket.off('connect')
+        socket.off('disconnect')
+        socket.off('message')
+        socket.off('refresh')
+        socket.off('gameStarted')
+        socket.off('gamePaused')
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [socket])
 
   /**
    * handle socket connection

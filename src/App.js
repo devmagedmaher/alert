@@ -12,11 +12,9 @@ function App() {
   }, [])
   
   return (
-    <React.StrictMode>
-      <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
-        <Router />
-      </MantineProvider>
-    </React.StrictMode>
+    <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
+      <Router />
+    </MantineProvider>
   );
 }
 

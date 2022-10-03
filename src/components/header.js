@@ -9,7 +9,7 @@ import {
   Text,
   Title,
 } from '@mantine/core'
-import { Link, useMatch } from 'react-router-dom'
+import { Link, useMatch, useNavigate } from 'react-router-dom'
 import { IconDoorExit } from '@tabler/icons'
 
 const HEADER_HEIGHT = 70
@@ -22,11 +22,12 @@ const useStyles = createStyles((theme) => ({
 
 const Header = () => {
   const { classes } = useStyles()
+  const navigate = useNavigate()
   const insideRoomPage = useMatch('/r/:room')
   const name = localStorage.getItem('name')
 
   const exitKitchen = () => {
-    window.location.href = '/join'
+    navigate('/join')
   }
 
   return (

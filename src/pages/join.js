@@ -6,8 +6,10 @@ import {
 } from '@mantine/core';
 import Layout from '../components/layout';
 import Input from '../components/input';
+import { useNavigate } from 'react-router-dom';
 
 const JoinPage = () => {
+  const navigate = useNavigate()
   const form = useForm({
     initialValues: {
       kitchen: localStorage.getItem('room') || '',
@@ -34,7 +36,7 @@ const JoinPage = () => {
 
       setLoading(true)
       // go to kitchen page
-      window.location.href = `/r/${kitchen}`
+      navigate(`/r/${kitchen}`)
     }
   }
 
