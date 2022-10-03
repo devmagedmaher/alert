@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/chef-recipe/static/css/main.e9b84389.css",
+    "main.js": "/chef-recipe/static/js/main.6b60ec6b.js",
+    "static/js/787.1d56c069.chunk.js": "/chef-recipe/static/js/787.1d56c069.chunk.js",
+    "static/media/logo.png": "/chef-recipe/static/media/logo.878ba9359b7db3edd7a8.png",
+    "static/media/icon.png": "/chef-recipe/static/media/icon.ecf559dedc0f6d541ec8.png",
+    "index.html": "/chef-recipe/index.html",
+    "main.e9b84389.css.map": "/chef-recipe/static/css/main.e9b84389.css.map",
+    "main.6b60ec6b.js.map": "/chef-recipe/static/js/main.6b60ec6b.js.map",
+    "787.1d56c069.chunk.js.map": "/chef-recipe/static/js/787.1d56c069.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e9b84389.css",
+    "static/js/main.6b60ec6b.js"
+  ]
+}
