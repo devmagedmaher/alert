@@ -25,7 +25,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=3003 react-scripts start",
     "server": "nodemon ./server/app.js",
     "build": "react-scripts build && mkdir -p server/public && cp -rf build/* server/public/",
     "deploy": "gh-pages -d build -b master --remote gh-pages",
