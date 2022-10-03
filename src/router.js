@@ -1,6 +1,7 @@
 import React from 'react'
 import {
   createBrowserRouter,
+  HashRouter,
   RouterProvider,
 } from "react-router-dom";
 import NotFoundPage from './pages/404'
@@ -31,7 +32,9 @@ const router = createBrowserRouter([
 
 const Router = () => {
   return (
-    <RouterProvider router={router} />
+    <HashRouter>
+      <RouterProvider router={router} />
+    </HashRouter>
   )
 }
 
