@@ -15,17 +15,10 @@ const MAX_PLAYERS = 16
 const IntroStage = () => {
   const theme = useMantineTheme()
   const sm = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`)
-  const { socket, status, setStage, game } = useGame()
+  const { socket, status, game } = useGame()
 
   const enterGame = () => {
     socket.emit('enterGame')
-
-    // if (game.started) {
-    //   setStage('game')
-    // }
-    // else {
-    //   setStage('lobby')
-    // }
   }
 
   return (
