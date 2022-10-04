@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Stack } from '@mantine/core';
+import { Button, Center, Stack } from '@mantine/core';
 import { FullSizeLogo } from '../components/logo';
 import Layout from '../components/layout';
 
@@ -14,7 +14,9 @@ const HomePage = () => {
   return (
     <Layout>
       <Stack>
-        <FullSizeLogo />
+        <Center>
+          <FullSizeLogo />
+        </Center>
         <Button onClick={goToJoinPage}
           variant="subtle"
           size="lg"
