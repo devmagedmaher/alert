@@ -2,6 +2,7 @@
   "name": "chef-recipe",
   "homepage": ".",
   "version": "0.1.1",
+  "license": "MIT",
   "dependencies": {
     "@emotion/react": "^11.10.4",
     "@mantine/core": "^5.4.1",
