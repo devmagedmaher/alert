@@ -10,10 +10,8 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.use('/ping', (req, res) => {
-  console.log('ping!');
-  res.status(200).send('success')
-});
+// ping route
+app.use('/ping', (req, res) => res.status(200).send('OK'));
 
 // serve react project static files
 const root = require('path').join(__dirname, 'public')
