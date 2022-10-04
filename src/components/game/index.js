@@ -26,7 +26,7 @@ const Game = (props) => {
   const [me, setMe] = React.useState()
 
   const { room, name, id } = props
-  const socketRef = React.useRef(io('https://b65a-156-204-168-31.eu.ngrok.io', {
+  const socketRef = React.useRef(io({
     autoConnect: false,
     query: { room, name, id }
   }))
