@@ -10,9 +10,9 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.use('/test', (req, res) => {
-  console.log('test route is visited.');
-  res.send('server is running...');
+app.use('/ping', (req, res) => {
+  console.log('ping!');
+  res.status(200).send('success')
 });
 
 // serve react project static files
