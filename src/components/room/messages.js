@@ -9,8 +9,9 @@ const useStyles = createStyles((theme) => ({
   },
 
   scrollArea: {
-    transition: 'height 100ms ease-in-out',
+    transition: 'height 100ms ease-in-out, padding-top 100ms ease-in-out',
     height: 240,
+    paddingTop: 12,
   },
 
   scrollAreaMini: {
@@ -19,6 +20,7 @@ const useStyles = createStyles((theme) => ({
 
   scrollAreaClosed: {
     height: 0,
+    paddingTop: 0,
   }
 }))
 
@@ -69,7 +71,6 @@ const Messages = () => {
       </Group>
       <Divider />
       <ScrollArea
-        pt="sm"
         type="auto"
         offsetScrollbars
         className={renderScrollAreaClasses()}
