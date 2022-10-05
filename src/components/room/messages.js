@@ -1,7 +1,7 @@
 import React from 'react'
 import { ActionIcon, createStyles, Divider, Group, Paper, ScrollArea, Text } from '@mantine/core'
-import { useGame } from '..'
 import { IconArrowDown, IconArrowsMaximize, IconArrowsMinimize } from '@tabler/icons'
+import { useRoom } from '.'
 
 const useStyles = createStyles((theme) => ({
   paper: {
@@ -24,7 +24,7 @@ const useStyles = createStyles((theme) => ({
 
 const Messages = () => {
   const { classes } = useStyles()
-  const { messages } = useGame()
+  const { messages } = useRoom()
   const [mini, setMini] = React.useState(false)
   const [open, setOpen] = React.useState(true)
 
