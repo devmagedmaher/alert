@@ -7,6 +7,7 @@ import {
 import Layout from '../components/layout';
 import Input from '../components/input';
 import { useNavigate } from 'react-router-dom';
+import { IconArrowBarRight } from '@tabler/icons';
 
 const JoinPage = () => {
   const navigate = useNavigate()
@@ -68,9 +69,10 @@ const JoinPage = () => {
           onClick={goToKitchen}
           variant="outline"
           size='md'
+          rightIcon={<IconArrowBarRight />}
           disabled={loading}
           loading={loading}
-        >Join {'>>'}</Button>
+        >Join</Button>
       </Stack>
     </Layout>
   )

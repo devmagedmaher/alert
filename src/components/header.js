@@ -19,13 +19,6 @@ const useStyles = createStyles((theme) => ({
     width: '100%',
   },
   
-  title: {
-    display: 'block',
-    
-    [`@media (max-width: ${theme.breakpoints.xs}px)`]: {
-      display: 'none',
-    }
-  }
 }))
 
 const Header = () => {
@@ -46,9 +39,6 @@ const Header = () => {
             <Link to='/'>
               <Logo />
             </Link>
-            <Title order={3} className={classes.title}>
-              <Text variant="text" color={'cyan'}>Chef Recipe</Text>
-            </Title>
           </Group>
           <Group>
             {insideRoomPage ? <ActionIcon

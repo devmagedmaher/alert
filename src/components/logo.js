@@ -1,6 +1,5 @@
 import React from 'react'
 import logo from '../assets/images/logo.png';
-import icon from '../assets/images/icon.png';
 import { Box, Image, createStyles } from '@mantine/core'
 
 const useStyles = createStyles(theme => ({
@@ -23,7 +22,7 @@ const Logo = () => {
 
   return (
     <div className={classes.logo}>
-      <Image src={icon} alt="Chef Recipe" />
+      <Image src={logo} alt="Chef Recipe" />
     </div>
   )
 }
