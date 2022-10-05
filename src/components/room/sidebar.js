@@ -1,8 +1,8 @@
 import React from 'react'
-import { useGame } from '..'
+import { useRoom } from '.'
 import { useMediaQuery } from '@mantine/hooks'
 import { createStyles, Divider, Navbar, ScrollArea, Text, Title, useMantineTheme } from '@mantine/core'
-import { HEADER_HEIGHT } from '../../header'
+import { HEADER_HEIGHT } from '../header'
 import PlayersList from './playersList'
 
 const SIDEBAR_WIDTH = 400
@@ -18,7 +18,8 @@ const Sidebar = () => {
   const { classes } = useStyles()
   const theme = useMantineTheme()
   const sm = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`)
-  const { game, room } = useGame()
+  const { room, name: roomName } = useRoom()
+  const { game } = room
 
   const renderGameStage = () => {
     const stage = game.started
@@ -35,11 +36,11 @@ const Sidebar = () => {
   return sm ? null : (
     <Navbar width={{ base: SIDEBAR_WIDTH }} height={`calc(100% - ${HEADER_HEIGHT}px)`}>
       <ScrollArea className={classes.scrollArea} type="auto">
-        <Navbar.Section p='lg'>
-          <Title order={4} mb="sm">Kitchen "{room}" {game.started ? '(Started)' : null}</Title>
+        {game && <Navbar.Section p='lg'>
+          <Title order={4} mb="sm">Kitchen "{roomName}" {game.started ? '(Started)' : null}</Title>
           <Text>Round: {game.round}/{game.rounds}</Text>
           {game.started ? <Text>Stage: {renderGameStage()}</Text> : null}
-        </Navbar.Section>
+        </Navbar.Section>}
 
         <Divider />
 

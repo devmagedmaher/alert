@@ -1,6 +1,4 @@
 import React from 'react'
-import { useGame } from '..'
-import { useMediaQuery } from '@mantine/hooks'
 import {
   Container,
   Stack,
@@ -8,12 +6,15 @@ import {
   Text,
   useMantineTheme,
 } from '@mantine/core'
-import PlayersList from '../components/playersList'
+import { useMediaQuery } from '@mantine/hooks'
+import { useRoom } from '.'
+import PlayersList from './playersList'
 
 const LobbyStage = () => {
   const theme = useMantineTheme()
   const sm = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`)
-  const { game, socket, isAdmin } = useGame()
+  const { data: room, socket, isAdmin } = useRoom()
+  const { game } = room
   
   const handleStartGame = () => {
     socket.emit('startGame')
@@ -23,7 +24,7 @@ const LobbyStage = () => {
     <Container>
       <Stack>
         <Text align='center'>
-          {game.players?.length < 3
+          {game.catStart
             ? "Minimum 3 players are required for game to start"
             : isAdmin
               ? "Other players are waiting for you to start the game."
@@ -33,7 +34,7 @@ const LobbyStage = () => {
         {isAdmin 
           ? <Button 
               onClick={handleStartGame}
-              disabled={game.players?.length < 3}
+              disabled={game.catStart}
               mb="md"
             >
               Start Game
@@ -42,7 +43,7 @@ const LobbyStage = () => {
           : null
         }
 
-        {sm ? <PlayersList /> : null}
+        {sm ? <PlayersList inGameOnly /> : null}
       </Stack>
     </Container>
   )

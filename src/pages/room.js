@@ -3,7 +3,7 @@ import {
   useParams,
   Navigate,
 } from 'react-router-dom'
-import Game from '../components/game';
+import Room from '../components/room';
 
 const RoomPage = () => {
   const { room } = useParams()
@@ -21,7 +21,7 @@ const RoomPage = () => {
   }
 
   return (
-    <Game room={room} name={name} id={id} />
+    <Room room={room} name={name} id={id} />
   )
 }
 

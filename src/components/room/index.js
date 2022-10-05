@@ -1,34 +1,42 @@
 import React from 'react'
 import { io } from 'socket.io-client'
-import GameStage from './stages/gameStage'
-import IntroStage from './stages/introStage'
-import LobbyStage from './stages/lobbyStage'
 import Layout from '../layout'
-import Sidebar from './components/sidebar'
-import Messages from './components/messages'
+import IntroStage from './introStage'
+import LobbyStage from './lobbyStage'
+import Sidebar from './sidebar'
+import Messages from './messages'
 import { Center, Grid, Stack } from '@mantine/core'
 import FullScreenButton from '../fullScreenButton'
 
-const GameContext = React.createContext({
+const RoomContext = React.createContext({
   setStage: () => false,
   status: null,
-  game: {},
+  data: {
+    players: [],
+    game: {},
+  },
 });
 
 
-const Game = (props) => {
+const Room = (props) => {
   const [stage, setStage] = React.useState()
   const stageRef = React.useRef()
   const [status, setStatus] = React.useState('loading')
-  const [game, setGame] = React.useState({})
-  const [messages, setMessages] = React.useState([])
+  const [data, setData] = React.useState({
+    players: [],
+    game: {},
+  })
   const [isAdmin, setIsAdmin] = React.useState(false)
-  const [me, setMe] = React.useState()
+  const [messages, setMessages] = React.useState([])
 
-  const { room, name, id } = props
-  const socketRef = React.useRef(io('http://192.168.121.254:5000', {
+  // const socketRef = React.useRef(io('http://192.168.121.254:5000', {
+  const socketRef = React.useRef(io('http://localhost:5000', {
     autoConnect: false,
-    query: { room, name, id }
+    query: {
+      room: props.room,
+      name: props.name,
+      id: props.id,
+    }
   }))
   const [socket, setSocket] = React.useState()
 
@@ -48,7 +56,6 @@ const Game = (props) => {
    * 
    */
   React.useEffect(() => {
-    console.log('socket established', socket)
     if (socket) {
       // connect to socket server
       setStatus('loading')
@@ -57,20 +64,19 @@ const Game = (props) => {
   
       socket.on('connect', handleConnect)
       socket.on('disconnect', handleDisconnect)
-      socket.on('refresh', handleGameRefresh)
+      socket.on('refresh', handleRoomRefreshData)
       socket.on('message', handleRceiveMessage)
-      socket.on('gameStarted', handleGameStarted)
-      socket.on('gamePaused', handleGamePaused)
+      // socket.on('gameStarted', handleGameStarted)
+      // socket.on('gamePaused', handleGamePaused)
   
       return () => {
-        console.log('disconnect', socket)
         socket.disconnect()
         socket.off('connect')
         socket.off('disconnect')
         socket.off('message')
         socket.off('refresh')
-        socket.off('gameStarted')
-        socket.off('gamePaused')
+        // socket.off('gameStarted')
+        // socket.off('gamePaused')
       }
     }
 
@@ -98,12 +104,23 @@ const Game = (props) => {
   }
 
   /**
-   * handle refresh game data
+   * handle refresh room data
    */
-  const handleGameRefresh = data => {
+  const handleRoomRefreshData = data => {
     console.log('refreshed data', data)
-    setGame(data)
+    setData(data)
+    setIsAdmin(data.me.admin)
 
+    if (data.me.inGame) {
+      if (stage !== 'lobby') {
+        setStage('lobby')
+      }
+    }
+    else {
+      if (stage !== 'intro') {
+        setStage('intro')
+      }
+    }
     // // set stage depending on game status and player lists
     // if (data.players.some(p => p.id === props.id)) {
     //   if (data.started) {
@@ -133,31 +150,31 @@ const Game = (props) => {
     setMessages(messages => [ message, ...messages ])
   }
 
-  /**
-   * handle game started
-   * 
-   */
-  const handleGameStarted = () => {
-    if (stageRef.current === 'lobby') {
-      console.log('game started')
-      setStage('game')
-    }
-  }
+  // /**
+  //  * handle game started
+  //  * 
+  //  */
+  // const handleGameStarted = () => {
+  //   if (stageRef.current === 'lobby') {
+  //     console.log('game started')
+  //     setStage('game')
+  //   }
+  // }
+
+  // /**
+  //  * handle game paused
+  //  * 
+  //  */
+  // const handleGamePaused = () => {
+  //   if (stageRef.current === 'game') {
+  //     console.log('game paused')
+  //     setStage('lobby')
+  //   }
+  // }
+
 
   /**
-   * handle game paused
-   * 
-   */
-  const handleGamePaused = () => {
-    if (stageRef.current === 'game') {
-      console.log('game paused')
-      setStage('lobby')
-    }
-  }
-
-
-  /**
-   * render game stages
+   * render room stages
    * 
    */
   const renderStage = () => {
@@ -165,8 +182,8 @@ const Game = (props) => {
       case 'lobby':
         return <LobbyStage />
 
-      case 'game':
-        return <GameStage />
+      // case 'game':
+      //   return <GameStage />
 
       default:
         return <IntroStage />
@@ -178,14 +195,12 @@ const Game = (props) => {
    * 
    */
   return (
-    <GameContext.Provider value={{
+    <RoomContext.Provider value={{
       socket,
-      setStage,
       status,
-      game,
-      messages,
+      data,
       isAdmin,
-      me,
+      messages,
       ...props
     }}>
       <Layout navbar={<Sidebar />} centerize={false}>
@@ -203,10 +218,10 @@ const Game = (props) => {
           </Grid.Col>
         </Grid>
       </Layout>
-    </GameContext.Provider>
+    </RoomContext.Provider>
   )
 }
 
-export default Game
+export default Room
 
-export const useGame = () => React.useContext(GameContext)
+export const useRoom = () => React.useContext(RoomContext)
