@@ -1,8 +1,10 @@
+const SocketIO = require('./socketIO')
 const Player = require('./player')
 const Game = require('./game')
+const gamesList = require('../games-list')
 
 
-class Room {
+class Room extends SocketIO {
 
   /**
    * Room name
@@ -33,22 +35,22 @@ class Room {
   isGameFull = false
 
   /**
-   * refresh room data
+   * is game overflowed
    * 
-   * @type {Function}
+   * @type {Boolean}
    */
-  refresh = () => { throw new Error('function is not assigend') }
+  isGameOverflowed = false
 
   /**
    * Init room
    * 
    */
-  constructor(name, { refresh }) {
+  constructor(name, { call, io }) {
+    super({ room: name, io })
+    
     this.name = name
-
-    // refresh room data
-    this.refresh = refresh
     this.game = new Game()
+    this.games = gamesList
   }
 
   /**
@@ -73,26 +75,12 @@ class Room {
 
   /**
    * 
-   * @param {String} id 
-   * @param {String} name 
-   * 
-   * @return {Player}
+   * @param {Boolean} isGameOverflowed 
+   * @returns 
    */
-  join(id, name) {
-    let player = this.getPlayer(id)
-
-    // check if player exists
-    if (player) {
-      // update player data
-      return player.setName(name).setIsConnected(true).setIsInGame(false)
-    }
-    else {
-      // add new player to room
-      player = new Player(id, name)
-      this.players.push(player)
-    }
-
-    return player
+  setIsGameOverflowed(isGameOverflowed) {
+    this.isGameOverflowed = isGameOverflowed
+    return this
   }
 
   /**
@@ -116,14 +104,34 @@ class Room {
   }
 
   /**
+   * get admin of the room
+   * 
+   */
+  getAdmin() {
+    return this.players.find(p => p.isAdmin)
+  }
+
+  /**
    * update can game start
    * 
    * @return {Room}
    */
   updateCanStart() {
+    if (this.game.name === undefined) {
+      // if game is not selected yet
+      // set can start = false
+      this.setCanGameStart(false)
+      return this
+    }
+
     const inGamePlayers = this.getInGamePlayers()
     if (inGamePlayers.length < this.game.min_players) {
       // if in game players less than min allowable players
+      // set can start = false
+      this.setCanGameStart(false)
+    }
+    else if (inGamePlayers.length > this.game.max_players) {
+      // if in game players more than max allowable players
       // set can start = false
       this.setCanGameStart(false)
     }
@@ -143,16 +151,70 @@ class Room {
   updateIsGameFull() {
     const inGamePlayers = this.getInGamePlayers()
     if (inGamePlayers.length < this.game.max_players) {
-      // if in game players leess than max allowable players
+      // if in game players less than max allowable players
       // set is full = false
       this.setIsGameFull(false)
     }
     else {
       // if in game players less than max allowable players
-      // set is full = false
+      // set is full = true
       this.setIsGameFull(true)
     }
     return this
+  }
+
+  /**
+   * update is game overflowed
+   * 
+   * @returns {Room}
+   */
+  updateIsGameOverflowed() {
+    const inGamePlayers = this.getInGamePlayers()
+    if (inGamePlayers.length > this.game.max_players) {
+      // if in game players more than max allowable players
+      // set is overflowed = true
+      this.setIsGameOverflowed(true)
+    }
+    else {
+      // if in game players less than max allowable players
+      // set is full = false
+      this.setIsGameFull(false)
+    }
+    return this
+  }
+
+  /**
+   * Join player to this room
+   * 
+   * @param {String} id 
+   * @param {String} name 
+   * 
+   * @return {Player}
+   */
+  joinPlayer(id, name, { socket }) {
+    let player = this.getPlayer(id)
+
+    // check if player exists
+    if (player) {
+      // update player data
+      player.setName(name).setIsConnected(true).setIsInGame(false)
+      // update socket client
+      .__setSocket(socket)
+    }
+    else {
+      // add new player to room
+      player = new Player(id, name, { room: this.name, io: this.__io, socket })
+      this.players.push(player)
+    }
+
+    // join socket room
+    player.joinRoom()
+
+    // announce player connection
+    player.selfMessage(`You have connected to "${this.name}" room successfully`, 'success')
+    player.castMessage(`${player.name} has connected to this room`, 'success')
+
+    return player
   }
 
   /**
@@ -177,15 +239,20 @@ class Room {
 
       // update game props
       this.updateCanStart()
+      this.updateIsGameOverflowed()
       this.updateIsGameFull()
 
       // set admin if he is the first inGame player
       if (inGamePlayers.length === 1) {
         player.setIsAdmin(true)
       }
+
+      player.selfMessage(`You have entered the game room`, 'info')
+      player.castMessage(`${player.name} has entered the game room`, 'info')
     }
 
-    this.refresh()
+    // this.__call('refresh')
+    this.refresh(this.toObject())
 
     return player
   }
@@ -216,6 +283,7 @@ class Room {
 
         // update game props
         this.updateCanStart()
+        this.updateIsGameOverflowed()
         // always set is full = false
         this.setIsGameFull(false)
 
@@ -229,13 +297,43 @@ class Room {
           }
         }
       }
-    }
 
-    this.refresh()
+      player.selfMessage(`You have disconnected from the room`, 'error')
+      player.castMessage(`${player.name} has disconnected from the room`, 'error')
+    }
+    
+    player.leaveRoom()
+    this.refresh(this.toObject())
 
     return player
   }
 
+  /**
+   * change room game
+   * 
+   * @param {String} name game name
+   * 
+   * @return {Game}
+   */
+  changeGame(name) {
+    const game = this.games.find(g => g.data.name === name)
+    this.game = new game.Class()
+
+    // update game props
+    this.updateCanStart()
+    this.updateIsGameOverflowed()
+    this.updateIsGameFull()
+
+    this.refresh(this.toObject())
+
+    const admin = this.getAdmin()
+    if (admin) {
+      admin.selfMessage(`You have selected "${this.game.name}" game`, 'info')
+      admin.castMessage(`${admin.name} has selected "${this.game.name}" game`, 'info')
+    }
+
+    return game
+  }
   
   /**
    * instance to json
@@ -244,34 +342,30 @@ class Room {
    * 
    * @return {Object}
    */
-  toObject(key) {
-    // objectify room
+  toObject() {
+    // objectify instance
     const { ...object } = this
 
-    // delete refresh functions
-    delete object.refresh
+    // delete private props and methods
+    Object.keys(object).forEach(key => {
+      if (key.startsWith('__')) {
+        delete object[key]
+      }
+    })
 
-    if (key === 'room') {
-      delete object.game
-      delete object.players
-      return object
-    }
+    // mutate games list
+    object.games = object.games.map(g => g.data)
 
     // objectify game instance
-    if (object.game) {
-      object.game = { ...object.game }
-    }
+    object.game = object.game.toObject()
 
-    if (key === 'game') {
-      return { game: object.game }
-    }
+    // mutate players list instances to list of objects
+    object.players = object.players
+    // filter disconnected players
+    .filter(p => p.isConnected)
+    // objectify player instance
+    .map(p => p.toObject())
 
-    // objectify players instances
-    object.players = object.players.map(p => ({ ...p })).filter(p => p.isConnected)
-
-    if (key === 'players') {
-      return { players: object.players }
-    }
 
     // return object
     return object

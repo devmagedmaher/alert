@@ -1,4 +1,3 @@
-const Utils = require('./utils')
 const Rooms = require('./models/rooms')
 
 const rooms = new Rooms()
@@ -9,25 +8,54 @@ module.exports = io => {
     console.log(`player: ${name} is joining room: ${room}`)
     try {
       // create/get room by name
-      const r = rooms.create(room, { refresh })
+      const r = rooms.create(room, { io })
 
       // check if there is a player connected with the same id
       if (r.getPlayer(id)?.isConnected) {
-        selfMessage('You are already connected on different tab or window.', 'error')
+        console.error(`player: ${name} is already joined to room: ${room}`)
+        sendMessage('self', 'You are already connected on different tab or window.', 'error')
         socket.disconnect()
         return
       }
 
-      // join player to room and get player instance
-      const p = r.join(id, name)
+      // join player to room
+      r.joinPlayer(id, name, { socket })
 
-      // join socket to room
-      socket.join(room)
+      // // join socket to room
+      // socket.join(room)
 
-      // send message to room about this player connection
-      selfMessage(`You have connected to room ${room} successfully`, 'success')
-      broadcastMessage(`${name} have connected to this room`)
+      // // send message to room about this player connection
+      // sendMessage('self', `You have connected to "${room}" room successfully`, 'success')
+      // sendMessage('cast', `${name} has connected to this room`, 'success')
 
+      /**
+       * 
+       * @param {String} func function name
+       * @param  {...any} args function arguments
+       */
+      function call(func, ...args) {
+        // console.log({func, args})
+        switch(func) {
+          case 'refresh':
+            refresh(...args)
+            break;
+          
+          case 'selfMessage':
+            sendMessage('self', ...args)
+            break;
+
+          case 'castMessage':
+            sendMessage('cast', ...args)
+            break;
+
+          case 'roomMessage':
+            sendMessage('room', ...args)
+            break;
+
+          default:
+            console.error(`Unsupported function ${func}`)
+        }
+      }
 
       /**
        * refresh room object
@@ -36,12 +64,12 @@ module.exports = io => {
       function refresh(key) {
         // objectify room
         const roomObject = r.toObject(key)
-        console.log('REFRESH', roomObject)
+        // console.log('REFRESH', roomObject)
 
         // emit updated room data to room players
         io.to(room).emit('refresh', roomObject)
       }
-      refresh()
+      refresh('games')
 
       /**
        * EnterGame: handle player enter game
@@ -51,7 +79,11 @@ module.exports = io => {
         console.log(`player: ${name} entered game in room: ${room}`)
         // enter player to the room's game
         r.enterPlayer(id)
-      }      
+      }
+
+      function handleGameChangedEvent(gameName) {
+        r.changeGame(gameName)
+      }
 
       /**
        * Disconnect: handle socket disconnection
@@ -63,19 +95,39 @@ module.exports = io => {
         r.disconnectPlayer(id)
       }
       
-      socket.on('enterGame', handleEnterGameEvent) 
+      /**
+       * socket listeners
+       * 
+       */
+      socket.on('enterGame', handleEnterGameEvent)
+      socket.on('gameChanged', handleGameChangedEvent)
       socket.on('disconnect', handleDisconnectEvent)
 
-      function selfMessage(text, type) {
-        socket.emit('message', { text, type })
-      }
 
-      function broadcastMessage(text, type) {
-        socket.broadcast.to(room).emit('message', { text, type })
-      }
-
-      function roomMessage(text, type) {
-        io.to(room).emit('message', { text, type })
+      /**
+       * send message via socket
+       * 
+       * @param {String} to self|cast|room
+       * @param {String} text text message 
+       * @param {String} type success|error|warning|info|NULL
+       */
+      function sendMessage(to, text, type) {
+        switch(to) {
+          case 'self':
+            socket.emit('message', { text, type })
+            break
+          
+          case 'cast':
+            socket.broadcast.to(room).emit('message', { text, type })
+            break
+          
+          case 'room':
+            io.to(room).emit('message', { text, type })
+            break
+          
+          default:
+            console.erro(`Unsupported "to" param ${to}`)
+        }
       }
     }
     catch(e) {

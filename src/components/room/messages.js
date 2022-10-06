@@ -84,8 +84,29 @@ const Messages = () => {
 }
 
 const Message = ({ message, index }) => {
+  const { text, type } = message
+
+  const getColor = () => {
+    switch(type) {
+      case 'success':
+        return 'green'
+
+      case 'error':
+        return 'red'
+
+      case 'warning':
+        return 'yellow'
+
+      case 'info':
+        return 'blue'
+
+      default:
+        return ''
+    }
+  }
+
   return (
-    <Text key={index} pl="sm">{message.text}</Text>
+    <Text key={index} pl="sm" color={getColor()}>{text}</Text>
   )
 }
 
