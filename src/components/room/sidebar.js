@@ -1,8 +1,9 @@
 import React from 'react'
 import { useMediaQuery } from '@mantine/hooks'
-import { createStyles, Navbar, ScrollArea, useMantineTheme } from '@mantine/core'
+import { createStyles, Divider, Navbar, ScrollArea, useMantineTheme } from '@mantine/core'
 import { HEADER_HEIGHT } from '../header'
 import PlayersList from './playersList'
+import GameInfo from './gameInfo'
 
 const SIDEBAR_WIDTH = 400
 const SIDEBAR_WIDTH_MOBILE = 60
@@ -21,6 +22,12 @@ const Sidebar = () => {
   return sm ? null : (
     <Navbar width={{ base: SIDEBAR_WIDTH }} height={`calc(100% - ${HEADER_HEIGHT}px)`}>
       <ScrollArea className={classes.scrollArea} type="auto">
+      <Navbar.Section grow>
+            <GameInfo />
+        </Navbar.Section>
+
+        <Divider size='sm' />
+
         <Navbar.Section grow>
             <PlayersList />
         </Navbar.Section>

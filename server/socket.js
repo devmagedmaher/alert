@@ -21,55 +21,6 @@ module.exports = io => {
       // join player to room
       r.joinPlayer(id, name, { socket })
 
-      // // join socket to room
-      // socket.join(room)
-
-      // // send message to room about this player connection
-      // sendMessage('self', `You have connected to "${room}" room successfully`, 'success')
-      // sendMessage('cast', `${name} has connected to this room`, 'success')
-
-      /**
-       * 
-       * @param {String} func function name
-       * @param  {...any} args function arguments
-       */
-      function call(func, ...args) {
-        // console.log({func, args})
-        switch(func) {
-          case 'refresh':
-            refresh(...args)
-            break;
-          
-          case 'selfMessage':
-            sendMessage('self', ...args)
-            break;
-
-          case 'castMessage':
-            sendMessage('cast', ...args)
-            break;
-
-          case 'roomMessage':
-            sendMessage('room', ...args)
-            break;
-
-          default:
-            console.error(`Unsupported function ${func}`)
-        }
-      }
-
-      /**
-       * refresh room object
-       * 
-       */
-      function refresh(key) {
-        // objectify room
-        const roomObject = r.toObject(key)
-        // console.log('REFRESH', roomObject)
-
-        // emit updated room data to room players
-        io.to(room).emit('refresh', roomObject)
-      }
-      refresh('games')
 
       /**
        * EnterGame: handle player enter game
@@ -81,8 +32,23 @@ module.exports = io => {
         r.enterPlayer(id)
       }
 
-      function handleGameChangedEvent(gameName) {
+      /**
+       * ChangeGame: handle change game event
+       * 
+       * @param {String} gameName game name
+       */
+      function handleChangeGameEvent(gameName) {
+        console.log(`player: ${name} changed game to ${gameName}`)
         r.changeGame(gameName)
+      }
+
+      /**
+       * StartGame: handle start game event
+       * 
+       */
+      function handleStartGameEvent() {
+        console.log(`player: ${name} started game ${r.game.name}`)
+        r.game.start()
       }
 
       /**
@@ -100,7 +66,8 @@ module.exports = io => {
        * 
        */
       socket.on('enterGame', handleEnterGameEvent)
-      socket.on('gameChanged', handleGameChangedEvent)
+      socket.on('changeGame', handleChangeGameEvent)
+      socket.on('startGame', handleStartGameEvent)
       socket.on('disconnect', handleDisconnectEvent)
 
 

@@ -50,8 +50,10 @@ class SocketIO {
   /**
    * send refreshed data
    * 
+   * @param {Object} data any data to be sent in object
    */
   refresh(data) {
+    console.log('REFRESH', data)
     // emit updated room data to room players
     this.__io.to(this.__room).emit('refresh', data)
   }

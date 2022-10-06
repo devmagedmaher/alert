@@ -7,8 +7,8 @@ class CapitalsGame extends Game {
   /**
    * Init game
    */
-  constructor() {
-    super('capitals', 'get the country capital name')
+  constructor(props) {
+    super('capitals', 'get the country capital name', props)
 
     // set default game settings
     this.min_players = 3

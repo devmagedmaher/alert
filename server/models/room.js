@@ -317,7 +317,7 @@ class Room extends SocketIO {
    */
   changeGame(name) {
     const game = this.games.find(g => g.data.name === name)
-    this.game = new game.Class()
+    this.game = new game.Class({ room: this.name, io: this.__io })
 
     // update game props
     this.updateCanStart()

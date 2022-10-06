@@ -3,6 +3,7 @@ import { io } from 'socket.io-client'
 import Layout from '../layout'
 import IntroStage from './introStage'
 import LobbyStage from './lobbyStage'
+import GameStages from './gameStages'
 import Sidebar from './sidebar'
 import Messages from './messages'
 import { Center, Grid, Stack } from '@mantine/core'
@@ -109,15 +110,29 @@ const Room = (props) => {
   const handleRoomRefreshData = data => {
     console.log('refreshed data', data)
     setData(currentData => ({ ...currentData, ...data }))
+  }
 
+  /**
+   * handle changing of data room/game/players
+   */
+  React.useEffect(() => {
     if (data.players) {
       const me = data.players.find(p => p.id === props.id)
       if (me) {
         setIsAdmin(me.isAdmin)
     
         if (me.isInGame) {
-          if (stage !== 'lobby') {
-            setStage('lobby')
+          const { game } = data
+
+          if (game.started) {
+            if (stage !== 'game') {
+              setStage('game')
+            }
+          }
+          else {
+            if (stage !== 'lobby') {
+              setStage('lobby')
+            }
           }
         }
         else {
@@ -127,7 +142,7 @@ const Room = (props) => {
         }
       }
     }
-  }
+  }, [data])
 
   /**
    * handle recieve messages
@@ -170,8 +185,8 @@ const Room = (props) => {
       case 'lobby':
         return <LobbyStage />
 
-      // case 'game':
-      //   return <GameStage />
+      case 'game':
+        return <GameStages />
 
       default:
         return <IntroStage />

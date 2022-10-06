@@ -7,8 +7,8 @@ class FlagsGame extends Game {
   /**
    * Init game
    */
-  constructor() {
-    super('flags', 'get the country flag name')
+  constructor(props) {
+    super('flags', 'get the country flag name', props)
   }
 
 }

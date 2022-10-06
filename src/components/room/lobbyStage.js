@@ -23,7 +23,7 @@ const LobbyStage = () => {
 
   const handleOnGameChange = (name) => {
     if (isAdmin) {
-      socket.emit('gameChanged', name)
+      socket.emit('changeGame', name)
     }
   }
 
