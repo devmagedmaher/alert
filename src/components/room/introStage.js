@@ -36,7 +36,7 @@ const IntroStage = () => {
         loading={status === 'loading'}
         mb="md"
       >
-        Enter the Game
+        Ready?
       </Button>
 
       {sm ? <PlayersList inGameOnly /> : null}
