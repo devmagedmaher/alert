@@ -7,7 +7,6 @@ import {
   Header as MantineHeader,
   Paper,
   Text,
-  Title,
 } from '@mantine/core'
 import { Link, useMatch, useNavigate } from 'react-router-dom'
 import { IconDoorExit } from '@tabler/icons'

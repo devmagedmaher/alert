@@ -1,4 +1,4 @@
-import { Group, Radio, SegmentedControl, Stack, Text } from '@mantine/core'
+import { Group, Radio, Text } from '@mantine/core'
 import React from 'react'
 import { useRoom } from '.'
 
@@ -6,19 +6,6 @@ const GamesList = ({ onChange }) => {
   const { data: room, isAdmin } = useRoom()
   const { game, games } = room
 
-  // return (
-  //   <SegmentedControl
-  //     size='lg'
-  //     orientation='vertical'
-  //     value={game.name}
-  //     onChange={onChange}
-  //     disabled={!isAdmin}
-  //     data={[{ value: '', label: 'Select a game:' }].concat(games.map(game => ({
-  //       value: game.name,
-  //       label: <Segment {...game} />,
-  //     })))}
-  //   />
-  // )
   return (
     <Radio.Group
       name="game"
