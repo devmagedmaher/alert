@@ -22,14 +22,14 @@ class Game extends SocketIO {
    * 
    * @type {Integer}
    */
-  max_players = 3
+  min_players = 2
 
   /**
    * default maximum players can join the game
    * 
    * @type {Integer}
    */
-  min_players = 2
+  max_players = 16
 
   /**
    * Game status (started|ended)
@@ -57,7 +57,7 @@ class Game extends SocketIO {
    * 
    * @type {Integer}
    */
-  rounds = 2
+  rounds = 5
 
   /**
    * questions
@@ -98,10 +98,11 @@ class Game extends SocketIO {
    * 
    */
   constructor(name, description, { room, io } = {}) {
-    super({ room, io })
+    super({ room: room?.name, io })
 
     this.name = name
     this.description = description
+    this.__roomInstance = room
   }
 
   /**
@@ -123,8 +124,8 @@ class Game extends SocketIO {
    * 
    */
   start() {
-    this.started = true
     this.round = 0
+    this.started = true
     this.isLoading = true
 
     this.roomMessage(`Game "${this.name}" is loading!`, 'info')
@@ -138,16 +139,20 @@ class Game extends SocketIO {
    * 
    */
   async loadGame() {
-    // fetch questions
-    this.__questions = await this.fetchQuestions()
+    // construct questions array
+    await this.buildRounds()
 
-    // load round data
-    this.nextRound()
-
-    // set loading is false after fetching questions and loading round
-    this.isLoading = false
-
-    this.refresh(this.toObject(true))
+    // make sure game is not stopped
+    if (this.started) {
+      // load round data
+      this.nextRound()
+  
+      // set loading is false after fetching questions and loading round
+      this.isLoading = false
+  
+      this.roomMessage(`Game "${this.name}" started!`, 'success')
+      this.refresh(this.toObject(true))
+    }
   }
 
   /**
@@ -171,15 +176,16 @@ class Game extends SocketIO {
       this.answer = null
       
       this.round += 1
-      this.resetTimer(5)
+      this.resetTimer()
       this.roomMessage(`Round "${this.round}" started!`, 'info')
     }
     else {
       this.endGame()
       this.roomMessage(`Game "${this.name}" ended!`, 'success')
     }
+    this.moveScoreInRound()
 
-    this.refresh(this.toObject(true))
+    this.refresh(this.__roomInstance.toObject())
   }
 
   /**
@@ -188,10 +194,55 @@ class Game extends SocketIO {
    */
   showAnswer() {
     this.answer = this.__question.answer
+    this.setPlayersScoreInRound()
     this.resetTimer(6)
 
     this.roomMessage(`Round "${this.round}" ended!`, 'success')
-    this.refresh(this.toObject(true))
+    this.refresh(this.__roomInstance.toObject())
+  }
+
+  /**
+   * calculate players scoring in current round
+   * 
+   */
+  setPlayersScoreInRound() {
+    // get in game players
+    this.__roomInstance.getInGamePlayers()
+
+    // filter players that didn't submit an answer
+    .filter(p => p.hasAnswered)
+
+    // loop and calculate
+    .forEach((player, _, players) => {
+      const total = players.length
+
+      // if he answered right
+      if (player.__answer === this.answer.id) {
+        // add plus score points
+        player.setScoreInRound(total - player.__answerOrder)
+      }
+
+      // if he answered wrong
+      else {
+        // add minus score points
+        player.setScoreInRound(-1)
+      }
+
+      // clear player answer
+      player.clearAnswer()
+    })
+  }
+
+  /**
+   * move scoreInRound to score in game
+   * 
+   */
+  moveScoreInRound() {
+    this.__roomInstance.getInGamePlayers()
+    .forEach(player => {
+      player.setScore(player.scoreInRound + player.score)
+      player.setScoreInRound(0)
+    })
   }
 
   /**
@@ -242,39 +293,12 @@ class Game extends SocketIO {
     this.__timer = setInterval(this.handleTimer.bind(this), 1000)
   }
 
-  async fetchQuestions() {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve([
-          {
-            question: {
-              text: 'What is the larges country ?',
-            },
-            answer: { text: 'China', id: 2 },
-            options: [
-              { text: 'Egypt', id: 1 },
-              { text: 'China', id: 2 },
-              { text: 'Germany', id: 3 },
-              { text: 'japan', id: 4 },
-            ]
-          },
-          {
-            question: {
-              text: 'What is the smallest country ?',
-            },
-            answer: { text: 'Bahrain', id: 3 },
-            options: [
-              { text: 'Italy', id: 1 },
-              { text: 'Australia', id: 2 },
-              { text: 'Bahrain', id: 3 },
-              { text: 'Sudan', id: 4 },
-            ]
-          },
-        ])
-      }, 2000)
-    })
-  }
-
+  /**
+   * convert instance to object
+   * 
+   * @param {Boolean} insideObject 
+   * @returns {Object}
+   */
   toObject(insideObject) {
     const { ...object } = this
 

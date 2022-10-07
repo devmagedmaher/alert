@@ -25,8 +25,9 @@ fs.readdirSync(absolutePath).forEach(fileName => {
     throw new Error(`"${game.data.name}" game is duplicated`)
   }
 
-  list.push(game)
+  if (Class.__isActive) {
+    list.push(game)
+  }
 });
-
 
 module.exports = list

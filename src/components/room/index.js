@@ -28,6 +28,7 @@ const Room = (props) => {
     game: {},
   })
   const [isAdmin, setIsAdmin] = React.useState(false)
+  const [me, setMe] = React.useState()
   const [messages, setMessages] = React.useState([])
 
   // const socketRef = React.useRef(io('http://192.168.121.254:5000', {
@@ -116,6 +117,7 @@ const Room = (props) => {
       const me = data.players.find(p => p.id === props.id)
       if (me) {
         setIsAdmin(me.isAdmin)
+        setMe(me)
     
         if (me.isInGame) {
           const { game } = data
@@ -200,6 +202,7 @@ const Room = (props) => {
       socket,
       status,
       data,
+      me,
       isAdmin,
       messages,
       ...props

@@ -21,7 +21,7 @@ module.exports = io => {
       }
 
       // join player to room
-      r.joinPlayer(id, name, { socket })
+      const p = r.joinPlayer(id, name, { socket })
 
 
       /**
@@ -75,6 +75,21 @@ module.exports = io => {
       }
 
       /**
+       * SubmitAnswer: handle submit an answer event
+       * 
+       */
+      function handleSubmitAnswerEvent(answer) {
+        Utils.tryCatch(() => {
+          r.submitPlayerAnswer(id, answer)
+        },
+        e => {
+          console.error('[ERROR][SOCKET]', e)
+          sendMessage('self', 'Oops, something wrong occurred on the server.', 'error')
+          socket.disconnect()
+        })
+      }
+
+      /**
        * Disconnect: handle socket disconnection
        * 
        */
@@ -97,6 +112,7 @@ module.exports = io => {
       socket.on('enterGame', handleEnterGameEvent)
       socket.on('changeGame', handleChangeGameEvent)
       socket.on('startGame', handleStartGameEvent)
+      socket.on('submitAnswer', handleSubmitAnswerEvent)
       socket.on('disconnect', handleDisconnectEvent)
 
 

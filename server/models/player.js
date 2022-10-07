@@ -53,6 +53,25 @@ class Player extends SocketIO {
   scoreInRound = 0
 
   /**
+   * Answer of the currecnt question
+   * 
+   * @type {any}
+   */
+  __answer
+
+  /**
+   * Order of answering to other players
+   */
+  __answerOrder = 0
+
+  /**
+   * did player answer the question?
+   * 
+   * @type {Boolean}
+   */
+  hasAnswered = false
+
+  /**
    * Init player
    * 
    */
@@ -120,6 +139,69 @@ class Player extends SocketIO {
     return this
   }
 
+  /**
+   * set player score in game
+   * 
+   * @param {Boolean} score score of current game
+   * 
+   * @returns {Player}
+   */
+  setScore(score) {
+    this.score = score
+    return this
+  }
+
+  /**
+   * set player score in round
+   * 
+   * @param {Boolean} scoreInRound score of current round
+   * 
+   * @returns {Player}
+   */
+  setScoreInRound(scoreInRound) {
+    this.scoreInRound = scoreInRound
+    return this
+  }
+
+  /**
+   * set has player answered flag
+   * 
+   * @param {Boolean} hasAnswered score of current round
+   * 
+   * @returns {Player}
+   */
+  setHasAnswered(hasAnswered) {
+    this.hasAnswered = hasAnswered
+    return this
+  }
+
+  /**
+   * clear current answer
+   * 
+   * @returns {Player}
+   */
+  clearAnswer() {
+    this.__answer = null
+    this.__answerOrder = null
+    this.hasAnswered = false
+    return this
+  }
+
+  /**
+   * submit an answer
+   * 
+   */
+  submitAnswer(answer, order) {
+    this.__answer = answer
+    this.__answerOrder = order
+    this.hasAnswered = true
+  }
+
+  /**
+   * convert instance to object
+   * 
+   * @returns {Object}
+   */
   toObject() {
     const { ...object } = this
 

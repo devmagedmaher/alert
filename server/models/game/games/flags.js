@@ -3,6 +3,12 @@ const Game = require('..')
 
 class FlagsGame extends Game {
 
+  /**
+   * is game active?
+   * 
+   * @type {Boolean}
+   */
+  static __isActive = false
 
   /**
    * Init game

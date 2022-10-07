@@ -45,7 +45,7 @@ class Room extends SocketIO {
    * Init room
    * 
    */
-  constructor(name, { call, io }) {
+  constructor(name, { io }) {
     super({ room: name, io })
     
     this.name = name
@@ -101,6 +101,15 @@ class Room extends SocketIO {
    */
   getInGamePlayers() {
     return this.players.filter(p => p.isInGame)
+  }
+
+  /**
+   * get players answered the current question in the game
+   * 
+   * @return {Array}
+   */
+  getAnsweredPlayers() {
+    return this.players.filter(p => p.hasAnswered)
   }
 
   /**
@@ -300,6 +309,12 @@ class Room extends SocketIO {
 
       player.selfMessage(`You have disconnected from the room`, 'error')
       player.castMessage(`${player.name} has disconnected from the room`, 'error')
+
+      if (this.game.started && !this.canGameStart) {
+        this.game.endGame()
+
+        this.roomMessage(`Game ${this.game.name} ended unexpectedly due to lack of players`, 'warning')
+      }
     }
     
     player.leaveRoom()
@@ -317,7 +332,7 @@ class Room extends SocketIO {
    */
   changeGame(name) {
     const game = this.games.find(g => g.data.name === name)
-    this.game = new game.Class({ room: this.name, io: this.__io })
+    this.game = new game.Class({ room: this, io: this.__io })
 
     // update game props
     this.updateCanStart()
@@ -333,6 +348,37 @@ class Room extends SocketIO {
     }
 
     return game
+  }
+
+  /**
+   * submit answer to the current question for a player
+   * 
+   * @param {String} id player id
+   * @param {Any} answer answer of the current question
+   */
+  submitPlayerAnswer(id, answer) {
+    const player = this.getPlayer(id)
+
+    if (player) {
+      if (player.isInGame) {
+        const order = this.getAnsweredPlayers().length
+        player.submitAnswer(answer, order)        
+
+        player.selfMessage(`You have submitted your answer`, 'success')
+        player.castMessage(`${player.name} has submitted his answer`, 'success')
+      }
+      else {
+        player.selfMessage('You are not in the game!!', 'warning')
+      }
+    }
+
+    // if all players had submitted their answers
+    if (this.getInGamePlayers().every(p => p.hasAnswered)) {
+      // show the answer
+      this.game.showAnswer()
+    }
+
+    this.refresh(this.toObject())
   }
   
   /**
