@@ -11,3 +11,26 @@
     .map(({ value }) => value)
     .slice(0, length)
 }
+
+/**
+ * Try Catch
+ * 
+ */
+module.exports.tryCatch = (tryFunc, catchFunc) => {
+  try {
+    if (tryFunc instanceof Function) {
+      tryFunc()
+      return
+    }
+
+    console.log('[WARNING][TRY_CATCH]', 'tryFunct is missing')
+  }
+  catch(e) {
+    if (catchFunc instanceof Function) {
+      catchFunc(e)
+      return
+    }
+
+    console.error('[ERROR][TRY_CATCH]', e)
+  }
+}

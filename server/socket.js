@@ -1,12 +1,14 @@
 const Rooms = require('./models/rooms')
+const Utils = require('./utils')
 
 const rooms = new Rooms()
 
 module.exports = io => {
   return async socket => {
     const { room, name, id } = socket.handshake.query;
-    console.log(`player: ${name} is joining room: ${room}`)
-    try {
+    Utils.tryCatch(() => {
+      console.log(`player: ${name} is joining room: ${room}`)
+
       // create/get room by name
       const r = rooms.create(room, { io })
 
@@ -27,9 +29,16 @@ module.exports = io => {
        * 
        */
       function handleEnterGameEvent() {
-        console.log(`player: ${name} entered game in room: ${room}`)
-        // enter player to the room's game
-        r.enterPlayer(id)
+        Utils.tryCatch(() => {
+          console.log(`player: ${name} entered game in room: ${room}`)
+          // enter player to the room's game
+          r.enterPlayer(id)
+        },
+        e => {
+          console.error('[ERROR][SOCKET]', e)
+          sendMessage('self', 'Oops, something wrong occurred on the server.', 'error')
+          socket.disconnect()
+        })
       }
 
       /**
@@ -38,8 +47,15 @@ module.exports = io => {
        * @param {String} gameName game name
        */
       function handleChangeGameEvent(gameName) {
-        console.log(`player: ${name} changed game to ${gameName}`)
-        r.changeGame(gameName)
+        Utils.tryCatch(() => {
+          console.log(`player: ${name} changed game to ${gameName}`)
+          r.changeGame(gameName)
+        },
+        e => {
+          console.error('[ERROR][SOCKET]', e)
+          sendMessage('self', 'Oops, something wrong occurred on the server.', 'error')
+          socket.disconnect()
+        })
       }
 
       /**
@@ -47,8 +63,15 @@ module.exports = io => {
        * 
        */
       function handleStartGameEvent() {
-        console.log(`player: ${name} started game ${r.game.name}`)
-        r.game.start()
+        Utils.tryCatch(() => {
+          console.log(`player: ${name} started game ${r.game.name}`)
+          r.game.start()
+        },
+        e => {
+          console.error('[ERROR][SOCKET]', e)
+          sendMessage('self', 'Oops, something wrong occurred on the server.', 'error')
+          socket.disconnect()
+        })
       }
 
       /**
@@ -56,9 +79,15 @@ module.exports = io => {
        * 
        */
       function handleDisconnectEvent() {
-        console.log(`player: ${name} is disconnected from room: ${room}`)
-        // disconnect player from the room
-        r.disconnectPlayer(id)
+        Utils.tryCatch(() => {
+          console.log(`player: ${name} is disconnected from room: ${room}`)
+          r.disconnectPlayer(id)
+        },
+        e => {
+          console.error('[ERROR][SOCKET]', e)
+          sendMessage('self', 'Oops, something wrong occurred on the server.', 'error')
+          socket.disconnect()
+        })
       }
       
       /**
@@ -93,14 +122,14 @@ module.exports = io => {
             break
           
           default:
-            console.erro(`Unsupported "to" param ${to}`)
+            console.error('[ERROR][SOCKET]', `Unsupported value of "to" param: ${to}`)
         }
       }
-    }
-    catch(e) {
-      console.log('[ERROR][SOCKET]', e);
-      socket.disconnect();
-      socket.leave(room)
-    }
+    },
+    e => {
+      console.error('[ERROR][SOCKET]', e)
+      sendMessage('self', 'Oops, something wrong occurred on the server.', 'error')
+      socket.disconnect()
+    })
   }
 }

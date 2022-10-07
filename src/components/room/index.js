@@ -67,8 +67,6 @@ const Room = (props) => {
       socket.on('disconnect', handleDisconnect)
       socket.on('refresh', handleRoomRefreshData)
       socket.on('message', handleRceiveMessage)
-      // socket.on('gameStarted', handleGameStarted)
-      // socket.on('gamePaused', handleGamePaused)
   
       return () => {
         socket.disconnect()
@@ -76,8 +74,6 @@ const Room = (props) => {
         socket.off('disconnect')
         socket.off('message')
         socket.off('refresh')
-        // socket.off('gameStarted')
-        // socket.off('gamePaused')
       }
     }
 
