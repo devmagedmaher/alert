@@ -193,6 +193,14 @@ class Room extends SocketIO {
   }
 
   /**
+   * reset game data like score and answer 
+   * 
+   */
+  resetPlayerGameData() {
+    this.players.forEach(player => player.setScore(0).clearAnswer())
+  }
+
+  /**
    * Join player to this room
    * 
    * @param {String} id 

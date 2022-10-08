@@ -127,6 +127,9 @@ class Game extends SocketIO {
     this.round = 0
     this.started = true
     this.isLoading = true
+    this.__questions = []
+    this.__answer = null
+    this.__roomInstance.resetPlayerGameData()
 
     this.roomMessage(`Game "${this.name}" is loading!`, 'info')
     this.refresh(this.toObject(true))
@@ -150,7 +153,6 @@ class Game extends SocketIO {
       // set loading is false after fetching questions and loading round
       this.isLoading = false
   
-      this.roomMessage(`Game "${this.name}" started!`, 'success')
       this.refresh(this.toObject(true))
     }
   }
@@ -161,6 +163,8 @@ class Game extends SocketIO {
    */
   endGame() {
     this.started = false
+    this.isLoading = false
+    this.counter = 0
     this.clearTimer()
   }
 
@@ -195,7 +199,7 @@ class Game extends SocketIO {
   showAnswer() {
     this.answer = this.__question.answer
     this.setPlayersScoreInRound()
-    this.resetTimer(6)
+    this.resetTimer(3)
 
     this.roomMessage(`Round "${this.round}" ended!`, 'success')
     this.refresh(this.__roomInstance.toObject())

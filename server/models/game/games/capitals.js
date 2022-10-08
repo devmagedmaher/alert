@@ -26,12 +26,12 @@ class CapitalsGame extends Game {
    */
   async buildRounds() {
     // get all countries
-    const data = await countries.all('name,capital')
+    const data = await countries.all('name,capital,cca2')
     // make sure there is a capital
     .then(data => data.filter(c => c.capital?.length && c.name.common && c.cca2))
 
     for (let i = 0; i < this.rounds; i++) {
-      const q = await this.buildQuestion(data)
+      const q = this.buildQuestion(data)
       this.__questions.push(q)
     }
   }
@@ -39,8 +39,11 @@ class CapitalsGame extends Game {
   /**
    * construct question object
    * 
+   * @param {Array} countries all countries array
+   * 
+   * @return {Object}
    */
-  async buildQuestion(countries) {
+  buildQuestion(countries) {
     const choices = Utils.getRandomElements(countries, 4)
     const [target] = Utils.getRandomElements(choices)
 
