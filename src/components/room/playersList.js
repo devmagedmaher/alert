@@ -75,15 +75,26 @@ const PlayerRow = ({ player, rank }) => {
   }
 
   const renderRightnessColor = () => {
-    if (!player.isInGame) {
-      return 'gray'
-    }
-    else if (player.isInGame) {
-      const { isRight, scoreInRound: score } = player
+    if (player.isInGame) {
+      const { scoreInRound } = player
   
-      return isRight === true || score > 0
+      return scoreInRound > 0
         ? 'green'
-        : isRight === false
+        : scoreInRound < 0
+          ? 'red'
+          : ''
+    }
+
+    return 'gray'
+  }
+
+  const renderScoreColor = () => {
+    if (player.isInGame) {
+      const { score } = player
+
+      return score > 0
+        ? 'green'
+        : score < 0
           ? 'red'
           : ''
     }
@@ -131,7 +142,9 @@ const PlayerRow = ({ player, rank }) => {
         {renderDeltaScore()}
       </td>
       <td align='center'>
-        {player.score}
+        <Text color={renderScoreColor()}>
+          {player.score}
+        </Text>
       </td>
     </tr>
   )
