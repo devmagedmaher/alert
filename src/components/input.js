@@ -9,11 +9,12 @@ const Input = ({
   size,
   onChange,
   onEnter,
-  inputProps,
-  wrapperProps,
 
   showLabel = false,
   autoFocus = false,
+
+  wrapperProps,
+  ...inputProps
 }) => {
   const inputRef = React.useRef()
 

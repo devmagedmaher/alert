@@ -19,12 +19,14 @@
     "gh-pages": "^4.0.0",
     "moment": "^2.29.4",
     "node-fetch": "2",
+    "random-words": "^1.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.4.1",
     "react-scripts": "5.0.1",
     "socket.io": "^4.5.2",
     "socket.io-client": "^4.5.2",
+    "string-similarity": "^4.0.4",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

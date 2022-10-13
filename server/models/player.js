@@ -61,6 +61,8 @@ class Player extends SocketIO {
 
   /**
    * Order of answering to other players
+   * 
+   * @type {Integer}
    */
   __answerOrder = 0
 

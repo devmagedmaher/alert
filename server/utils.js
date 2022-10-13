@@ -1,4 +1,4 @@
-
+const stringSimilarity = require('string-similarity')
 
 /**
  * get random elements of array
@@ -33,4 +33,12 @@ module.exports.tryCatch = (tryFunc, catchFunc) => {
 
     console.error('[ERROR][TRY_CATCH]', e)
   }
+}
+
+/**
+ * get similarity between two strings
+ * 
+ */
+module.exports.getSimilarity = (string1, string2) => {
+  return stringSimilarity.compareTwoStrings(string1, string2)
 }
